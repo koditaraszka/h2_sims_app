@@ -1,0 +1,22 @@
+---
+title: "Continuous Liability: Main Method"
+output: html_document
+---
+
+```{r, size = 'small'}
+liab = function(N, M, h2, C, minOnset, maxOnset, MAF){
+  # helper function for genetics
+  # returns genetic liability and GRM
+  gen = gen_liab(N, M, C, h2, MAF)
+  
+  l_g = gen$liab
+  l_e = sqrt(1-h2)*scale(rnorm(N, 0, 1))
+  l = l_g + l_e
+
+  # helper function for setting age
+  age = setage_liability(N, minOnset, maxOnset)
+  
+  return(list("Y"=rep(1,N), "age"=age, "liab"=l, "gen"=l_g, "GRM"=gen$GRM))
+  
+}
+```

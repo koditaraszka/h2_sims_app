@@ -1,0 +1,19 @@
+---
+title: "Fully Observed Case-Control: Set Age"
+output: html_document
+---
+
+```{r, size = 'small'}
+setage_liability = function(N, minOnset, maxOnset){
+  
+  # set age
+  onsetStd = (maxOnset-minOnset)/4
+  onsetMean = mean(c(minOnset, maxOnset))
+  casesQuants = runif(N, 0.025, 0.975)
+  onsetAge = qnorm(casesQuants, onsetMean, onsetStd)
+  
+  # return their age in years
+  return(round(onsetAge, 0))
+
+}
+```

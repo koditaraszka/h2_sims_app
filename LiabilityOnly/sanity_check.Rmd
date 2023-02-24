@@ -1,0 +1,44 @@
+---
+title: "Fully Observed Case-Control: Sanity Check"
+output: html_document
+---
+
+```{r, size = 'small'}
+check_fullcc = function(N, M, h2, C, minOnset, maxOnset, MAF){
+  
+  if(M < 1 | !is.numeric(M)){
+    print(M)
+    stop("The number of SNPs needs to be a non-negative integer")
+  }
+  
+  if(N < 1 | !is.numeric(N)){
+    stop("The number of individuals needs to be a non-negative integer")
+  }
+  
+  if(MAF < 0 | MAF > 0.5){
+    stop("The *minor* allele frequency needs to be a number between 0 and 0.5")
+  }
+  
+  if(h2 < 0 | h2 > 1){
+    stop("Heritability needs to be a number between 0 and 1")
+  }
+  
+  if(K < 0 | K > 1){
+    stop("The population prevalence needs to be a number between 0 and 1")
+  }
+  
+  if(C < 0 | C > 1){
+    stop("The proportion of causal SNPs needs to be a number between 0 and 1")
+  }
+  
+  if(minOnset >= maxOnset){
+    if(minOnset == maxOnset){
+      warning(paste0("There is only one onset age: ", minOnset, " (i.e. min onset age equals max onset age)"))
+    } else{
+      stop("The min onset age cannot be greater than maxOnset")
+    }
+  }
+  
+}
+```
+

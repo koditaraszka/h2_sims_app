@@ -1,0 +1,14 @@
+---
+title: "Weibull Distribution"
+output: html_document
+---
+
+
+```r
+weibull = function(N, shape, scale){
+  
+  base = exp(scale)
+  u = log(1-runif(N))
+  return((-1*u/base)^(1/shape))
+}
+```

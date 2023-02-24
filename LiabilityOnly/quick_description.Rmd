@@ -1,0 +1,7 @@
+---
+title: "Fully Observed Case-Control: Quick Description"
+output: html_document
+---
+The phenotype of interest, $Y$, is a quantitative trait for $N$ unrelated individuals. This can be thought of as the continuous unobserved liability in the liability threshold model.
+
+We will assume everyone developed the disease dependendent on the liability and that their age of onset follows a truncated Gaussian distribution with truncation occurring at $\Phi^{-1}(0.025)$ and $\Phi^{-1}(0.975)$ quantiles. The intent of these simulations is to explore heritability of the continuous liability. The age-of-onset is to make the method compatible with the cox frailty model.
