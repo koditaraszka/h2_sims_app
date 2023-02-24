@@ -8,21 +8,34 @@ fullcc = function(N, M, h2, K, P, C, minCen, maxCen, minOnset, maxOnset, MAF){
   # helper function for genetics
   # returns genetic liability and GRM
   #P=0.5
+  if(P==1){
+    gen = gen_liab(N, M, C, h2, MAF)
   
-  gen = gen_liab(N, M, C, h2, MAF)
+    l_g = gen$liab
+    l_e = sqrt(1-h2)*scale(rnorm(N, 0, 1))
+    l = l_g + l_e
+    t = qnorm((1-K))
+    Y = as.numeric(l >= t)
+    
+    age = setage_fullcc(Y, minCen, maxCen, minOnset, maxOnset)
+    return(list("Y"=Y, "age"=age, "liab"=l, "gen"=l_g, "GRM"=gen$GRM))
+  
+  }
+ 
+  gen = gen_liab(N/K, M, C, h2, MAF)
   
   l_g = gen$liab
-  l_e = sqrt(1-h2)*scale(rnorm(N, 0, 1))
+  l_e = sqrt(1-h2)*scale(rnorm(N/K, 0, 1))
   l = l_g + l_e
   t = qnorm((1-K))
   Y = as.numeric(l >= t)
- 
-  #keepCases = sample(which(Y==1), P*N, replace = F)
-  #keepControls = sample(which(Y==0), P*N, replace = F)
+    
+  keepCases = sample(which(Y==1), 0.5*N, replace = F)
+  keepControls = sample(which(Y==0), 0.5*N, replace = F)
   
-  #Y = Y[sort(c(keepCases, keepControls))]
-  #gen$GRM = gen$GRM[sort(c(keepCases, keepControls)), sort(c(keepCases, keepControls))]
-  #l = l[sort(c(keepCases, keepControls))]
+  Y = Y[sort(c(keepCases, keepControls))]
+  gen$GRM = gen$GRM[sort(c(keepCases, keepControls)), sort(c(keepCases, keepControls))]
+  l = l[sort(c(keepCases, keepControls))]
   # helper function for setting age
   age = setage_fullcc(Y, minCen, maxCen, minOnset, maxOnset)
   

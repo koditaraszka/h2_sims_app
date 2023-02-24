@@ -20,12 +20,11 @@ methods_colors = c("Cox Frailty" = "#e41a1c", "Case-Control Status" = "#ff7f00",
                    "Log Age-of-Onset" = "#4daf4a", "RINT Age-of-Onset" = "#984ea3")
 # Age Distribution Plot
 
-obs2lia <- function(h2=NULL,K=NULL){#, P=NULL){
+obs2lia <- function(h2=NULL,K=NULL, P=NULL){
   
   X <- qnorm(K,lower.tail=FALSE)
   z <- (1/sqrt(2*pi))*(exp(-(X**2)/2))
-  #h2lia <- h2*(K*(1-K)*K*(1-K))/(P*(1-P)*(z**2))
-  h2lia <- h2*(K*(1-K))/(z**2)
+  h2lia <- h2*(K*(1-K)*K*(1-K))/(P*(1-P)*(z**2))
   return(h2lia)
   
 }
@@ -208,6 +207,7 @@ runMethods = function(data, models, k, lm, liab = F){
 
   GRM=NA
   if(liab){
+    print('here')
     if(lm=="2"){
       GRM = data$GRM[upper.tri(data$GRM)]
     }
@@ -265,10 +265,11 @@ runMethods = function(data, models, k, lm, liab = F){
     if(lm=="1"){
       binGRM = aiML(list(data$GRM), data$Y, c(0.5,0.5), verbose = F)$h2
     } else {
+      GRM2 = data$GRM[upper.tri(data$GRM)]
       pp=data$Y %*% t(data$Y)
-      binGRM = summary(lm(pp[upper.tri(pp)] ~ GRM))$coef[2,1]
+      binGRM = summary(lm(pp[upper.tri(pp)] ~ GRM2))$coef[2,1]
     }
-    scale_binGRM = obs2lia(binGRM, k)#, 0.5)
+    scale_binGRM = obs2lia(binGRM, k, length(which(data$Y==1))/length(data$Y))
   }
   
   #cases-only
@@ -304,7 +305,7 @@ runMethods = function(data, models, k, lm, liab = F){
       boxcoxGRM = aiML(list(data$GRM), scale(boxcox_y, scale = F, center = T), c(0.5,0.5), verbose = F)$h2
     } else {
       pp=boxcox_y %*% t(boxcox_y)
-      binGRM = summary(lm(pp[upper.tri(pp)] ~ GRM))$coef[2,1]
+      boxcoxGRM = summary(lm(pp[upper.tri(pp)] ~ GRM))$coef[2,1]
     }
     scale_boxcoxGRM = 4*boxcoxGRM/(1+boxcoxGRM)
     

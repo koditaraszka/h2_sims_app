@@ -80,11 +80,11 @@ server <- function(input, output) {
         progress$set(message = "Generating Plots", value = 0)
         results = NULL
         isolate({
-            first = fullcc(input$fullccN, input$fullccM, input$fullccH2, input$fullccK, 0.5, input$fullccC/100, input$fullccCen[1], input$fullccCen[2], input$fullccOnset[1], input$fullccOnset[2], 0.05)
+            first = fullcc(input$fullccN, input$fullccM, input$fullccH2, input$fullccK, input$fullccP, input$fullccC/100, input$fullccCen[1], input$fullccCen[2], input$fullccOnset[1], input$fullccOnset[2], 0.05)
             detail = overview(first)
             for(i in 1:input$fullccSims){
                 progress$inc(1/input$fullccSims, detail = paste("Running Simulation", i))
-                x=fullcc(input$fullccN, input$fullccM, input$fullccH2, input$fullccK, 0.5, input$fullccC/100, input$fullccCen[1], input$fullccCen[2], input$fullccOnset[1], input$fullccOnset[2], 0.05)
+                x=fullcc(input$fullccN, input$fullccM, input$fullccH2, input$fullccK, input$fullccP, input$fullccC/100, input$fullccCen[1], input$fullccCen[2], input$fullccOnset[1], input$fullccOnset[2], 0.05)
                 results = rbind(results, runMethods(x, input$fullccModels, input$fullccK, input$fullccLM))
             }
             results = data.frame(results)

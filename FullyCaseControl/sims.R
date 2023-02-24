@@ -20,27 +20,38 @@ fluidPage(
                 ),
             ),
             fluidRow(
-                column(6,
+                column(12,
                     sliderInput("fullccH2",
                         label = h4("SNP Heritability:"),
                         min = 0, max = 1, value = 0.5
                     )
-                ),
-                column(6,
-                    sliderInput("fullccK",
-                        label = h4("Proportion of Cases:"),
-                        min = 0, max = 1, value = 0.1
-                    )
                 )
             ),
             fluidRow(
-                column(4,
+                column(6,
+                    sliderInput("fullccK",
+                        label = h4("Population Prevalence of Cases:"),
+                        min = 0, max = 0.5, value = 0.1
+                    )
+                ),
+                column(6,
+                       radioButtons("fullccP",
+                                   label = h4("Sample Prevalence Cases:"),
+                                   choices = list("Equals Population" = 1,
+                                                  "50% of Sample" = 2
+                                   ),
+                                   selected = 1
+                       )
+                )
+            ),
+            fluidRow(
+                column(6,
                     numericInput("fullccM", 
                         label = h4("Number of SNPs:"),
                         value = 100, step=100, min=1
                     )
                 ),
-                column(8,
+                column(6,
                     sliderInput("fullccC",
                         label = h4("Causal SNPs (%):"),
                         min = 0, max = 100, value = 100
