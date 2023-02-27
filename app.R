@@ -80,11 +80,11 @@ server <- function(input, output) {
         progress$set(message = "Generating Plots", value = 0)
         results = NULL
         isolate({
-            first = fullcc(input$fullccN, input$fullccM, input$fullccH2, input$fullccK, input$fullccP, input$fullccC/100, input$fullccCen[1], input$fullccCen[2], input$fullccOnset[1], input$fullccOnset[2], 0.05)
+            first = fullcc(input$fullccN, input$fullccM, input$fullccH2, input$fullccK, input$fullccP, input$fullccC/100, input$fullccCen[1], input$fullccCen[2], input$fullccOnset[1], input$fullccOnset[2])
             detail = overview(first)
             for(i in 1:input$fullccSims){
                 progress$inc(1/input$fullccSims, detail = paste("Running Simulation", i))
-                x=fullcc(input$fullccN, input$fullccM, input$fullccH2, input$fullccK, input$fullccP, input$fullccC/100, input$fullccCen[1], input$fullccCen[2], input$fullccOnset[1], input$fullccOnset[2], 0.05)
+                x=fullcc(input$fullccN, input$fullccM, input$fullccH2, input$fullccK, input$fullccP, input$fullccC/100, input$fullccCen[1], input$fullccCen[2], input$fullccOnset[1], input$fullccOnset[2])
                 results = rbind(results, runMethods(x, input$fullccModels, input$fullccK, input$fullccLM))
             }
             results = data.frame(results)
@@ -128,11 +128,11 @@ server <- function(input, output) {
         progress$set(message = "Generating Plots", value = 0)
         results = NULL
         isolate({
-            first = liab(input$liabN, input$liabM, input$liabH2, input$liabC/100, input$liabOnset[1], input$liabOnset[2], 0.05)
+            first = liab(input$liabN, input$liabM, input$liabH2, input$liabC/100, input$liabOnset[1], input$liabOnset[2])
             detail = overview(first, TRUE)
             for(i in 1:input$liabSims){
                 progress$inc(1/input$liabSims, detail = paste("Running Simulation", i))
-                x=liab(input$liabN, input$liabM, input$liabH2, input$liabC/100, input$liabOnset[1], input$liabOnset[2], 0.05)
+                x=liab(input$liabN, input$liabM, input$liabH2, input$liabC/100, input$liabOnset[1], input$liabOnset[2])
                 results = rbind(results, runMethods(x, input$liabModels, 0, input$liabLM, T))
             }
             results = data.frame(results)
@@ -177,11 +177,11 @@ server <- function(input, output) {
         progress$set(message = "Generating Plots", value = 0)
         results = NULL
         isolate({
-            first = ageonset(input$ageonsetN, input$ageonsetM, input$ageonsetH2, input$ageonsetK, input$ageonsetC/100, as.numeric(input$ageonsetWeibull), 0.05)
+            first = ageonset(input$ageonsetN, input$ageonsetM, input$ageonsetH2, input$ageonsetK, input$ageonsetC/100, as.numeric(input$ageonsetWeibull))
             detail = overview(first)
             for(i in 1:input$ageonsetSims){
                 progress$inc(1/input$ageonsetSims, detail = paste("Running Simulation", i))
-                x = ageonset(input$ageonsetN, input$ageonsetM, input$ageonsetH2, input$ageonsetK, input$ageonsetC/100, as.numeric(input$ageonsetWeibull), 0.05)
+                x = ageonset(input$ageonsetN, input$ageonsetM, input$ageonsetH2, input$ageonsetK, input$ageonsetC/100, as.numeric(input$ageonsetWeibull))
                 results = rbind(results, runMethods(x, input$ageonsetModels, input$ageonsetK, input$ageonsetLM))
             }
             results = data.frame(results)

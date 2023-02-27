@@ -20,12 +20,16 @@ methods_colors = c("Cox Frailty" = "#e41a1c", "Case-Control Status" = "#ff7f00",
                    "Log Age-of-Onset" = "#4daf4a", "RINT Age-of-Onset" = "#984ea3")
 # Age Distribution Plot
 
-obs2lia <- function(h2=NULL,K=NULL, P=NULL){
+obs2lia <- function(h2=NULL,K=NULL, P=NULL, reciprical = F){
   
   X <- qnorm(K,lower.tail=FALSE)
-  z <- (1/sqrt(2*pi))*(exp(-(X**2)/2))
-  h2lia <- h2*(K*(1-K)*K*(1-K))/(P*(1-P)*(z**2))
-  return(h2lia)
+  z <- dnorm(X)
+  num = K^2*(1-K)^2
+  denom = P*(1-P)*z^2
+  if(reciprical){
+    return(h2*denom/num)
+  }
+  return(h2*num/denom)
   
 }
 
@@ -97,7 +101,7 @@ smooth_incidence = function(first){
   temp["Incidence"] = 0
   temp$Age = as.numeric(as.character(temp$Age))
   for(j in unique(first$`Genetic Liability`)){
-    prev=50
+    prev=length(which(first$`Genetic Liability`==j))
     add=0
     for(i in sort(unique(temp$Age))){
       cases = dim(first[which(first$Age==i & first$`Genetic Liability`==j & first$Status=="Case"),])[1]
@@ -264,12 +268,14 @@ runMethods = function(data, models, k, lm, liab = F){
   if("2" %in% models){
     if(lm=="1"){
       binGRM = aiML(list(data$GRM), data$Y, c(0.5,0.5), verbose = F)$h2
+      scale_binGRM = obs2lia(binGRM, k, length(which(data$Y==1))/length(data$Y), F)
     } else {
-      GRM2 = data$GRM[upper.tri(data$GRM)]
+      GRM2 = obs2lia(data$GRM, k, length(which(data$Y==1))/length(data$Y), T)
+      GRM2 = GRM2[upper.tri(GRM2)]
       pp=data$Y %*% t(data$Y)
       binGRM = summary(lm(pp[upper.tri(pp)] ~ GRM2))$coef[2,1]
+      scale_binGRM = NA
     }
-    scale_binGRM = obs2lia(binGRM, k, length(which(data$Y==1))/length(data$Y))
   }
   
   #cases-only
