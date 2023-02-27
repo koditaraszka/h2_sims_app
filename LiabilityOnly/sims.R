@@ -15,7 +15,7 @@ fluidPage(
                 column(6,
                     numericInput("liabN",
                         label = h4("Sample Size:"),
-                        value = 500, step=100, min=1
+                        value = 2000, step=100, min=100, max=5000
                     )
                 ),
             ),
@@ -37,7 +37,7 @@ fluidPage(
                 column(4,
                     numericInput("liabM", 
                         label = h4("Number of SNPs:"),
-                        value = 100, step=100, min=1
+                        value = 100, step=100, min=100, max=5000
                     )
                 ),
                 column(8,
