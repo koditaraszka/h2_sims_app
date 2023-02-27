@@ -211,7 +211,6 @@ runMethods = function(data, models, k, lm, liab = F){
 
   GRM=NA
   if(liab){
-    print('here')
     if(lm=="2"){
       GRM = data$GRM[upper.tri(data$GRM)]
     }
@@ -229,7 +228,7 @@ runMethods = function(data, models, k, lm, liab = F){
       if(lm=="1"){
         binGRM = aiML(list(data$GRM), data$liab, c(0.5,0.5), verbose = F)$h2
       } else {
-        pp=data$liab %*% t(data$liab)
+        pp=scale(data$liab) %*% t(scale(data$liab))
         binGRM = summary(lm(pp[upper.tri(pp)] ~ GRM))$coef[2,1]
       }
     }
@@ -272,7 +271,7 @@ runMethods = function(data, models, k, lm, liab = F){
     } else {
       GRM2 = obs2lia(data$GRM, k, length(which(data$Y==1))/length(data$Y), T)
       GRM2 = GRM2[upper.tri(GRM2)]
-      pp=data$Y %*% t(data$Y)
+      pp=scale(data$Y) %*% t(scale(data$Y))
       binGRM = summary(lm(pp[upper.tri(pp)] ~ GRM2))$coef[2,1]
       scale_binGRM = NA
     }
@@ -290,9 +289,9 @@ runMethods = function(data, models, k, lm, liab = F){
   if("4" %in% models){
     log_y = log(age)
     if(lm=="1"){
-      logGRM = aiML(list(data$GRM), scale(log_y, scale = F, center = T), c(0.5,0.5), verbose = F)$h2
+      logGRM = aiML(list(data$GRM), scale(log_y, center = T), c(0.5,0.5), verbose = F)$h2
     } else {
-      pp=log_y %*% t(log_y)
+      pp=scale(log_y) %*% t(scale(log_y))
       logGRM = summary(lm(pp[upper.tri(pp)] ~ GRM))$coef[2,1]
     }
     scale_logGRM = 4*logGRM/(1+logGRM)
@@ -308,9 +307,9 @@ runMethods = function(data, models, k, lm, liab = F){
       boxcox_y = log(age)
     }
     if(lm=="1"){
-      boxcoxGRM = aiML(list(data$GRM), scale(boxcox_y, scale = F, center = T), c(0.5,0.5), verbose = F)$h2
+      boxcoxGRM = aiML(list(data$GRM), scale(boxcox_y, center = T), c(0.5,0.5), verbose = F)$h2
     } else {
-      pp=boxcox_y %*% t(boxcox_y)
+      pp=scale(boxcox_y) %*% t(scale(boxcox_y))
       boxcoxGRM = summary(lm(pp[upper.tri(pp)] ~ GRM))$coef[2,1]
     }
     scale_boxcoxGRM = 4*boxcoxGRM/(1+boxcoxGRM)

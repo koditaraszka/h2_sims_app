@@ -355,11 +355,8 @@ Method</h1>
 
 
 <pre class="r"><code>fullcc = function(N, M, h2, K, P, C, minCen, maxCen, minOnset, maxOnset){
-  MAF=0.01
+  MAF=0.05
   if(P==1){
-    frac = (0.5*N)/25
-    maf = 1/frac
-    MAF = max(MAF, maf)
     frac = (K*N)/25
     maf = 1/frac
     MAF = max(MAF, maf)
@@ -375,10 +372,11 @@ Method</h1>
     age = setage_fullcc(Y, minCen, maxCen, minOnset, maxOnset)
     return(list(&quot;Y&quot;=Y, &quot;age&quot;=age, &quot;liab&quot;=l, &quot;gen&quot;=l_g, &quot;GRM&quot;=gen$GRM))
   } 
-  frac = (K*N)/25
+  
+  frac = (0.5*N)/25
   maf = 1/frac
   MAF = max(MAF, maf)
- 
+    
   gen = gen_liab(N/K, M, C, h2, MAF)
   
   l_g = gen$liab

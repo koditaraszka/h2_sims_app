@@ -5,11 +5,8 @@ output: html_document
 
 ```{r, size = 'small'}
 fullcc = function(N, M, h2, K, P, C, minCen, maxCen, minOnset, maxOnset){
-  MAF=0.01
+  MAF=0.05
   if(P==1){
-    frac = (0.5*N)/25
-    maf = 1/frac
-    MAF = max(MAF, maf)
     frac = (K*N)/25
     maf = 1/frac
     MAF = max(MAF, maf)
@@ -25,10 +22,11 @@ fullcc = function(N, M, h2, K, P, C, minCen, maxCen, minOnset, maxOnset){
     age = setage_fullcc(Y, minCen, maxCen, minOnset, maxOnset)
     return(list("Y"=Y, "age"=age, "liab"=l, "gen"=l_g, "GRM"=gen$GRM))
   } 
-  frac = (K*N)/25
+  
+  frac = (0.5*N)/25
   maf = 1/frac
   MAF = max(MAF, maf)
- 
+    
   gen = gen_liab(N/K, M, C, h2, MAF)
   
   l_g = gen$liab
