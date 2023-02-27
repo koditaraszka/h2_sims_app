@@ -353,7 +353,8 @@ display: none;
 </div>
 
 
-<pre class="r"><code>ageonset = function(N, M, h2, K, C, shape, MAF){
+<pre class="r"><code>ageonset = function(N, M, h2, K, C, shape){
+  MAF=0.05
   # helper function for genetics
   # returns genetic liability and GRM
   gen = gen_liab(N, M, C, h2, MAF)

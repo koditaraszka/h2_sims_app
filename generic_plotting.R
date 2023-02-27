@@ -1,9 +1,7 @@
 rmarkdown::render("genetic_liability.Rmd")
 rmarkdown::render("FullyCaseControl/main_method.Rmd")
-rmarkdown::render("FullyCaseControl/sanity_check.Rmd")
 rmarkdown::render("FullyCaseControl/set_age.Rmd")
 rmarkdown::render("LiabilityOnly/main_method.Rmd")
-rmarkdown::render("LiabilityOnly/sanity_check.Rmd")
 rmarkdown::render("LiabilityOnly/set_age.Rmd")
 rmarkdown::render("TimeToDisease/main_method.Rmd")
 rmarkdown::render("TimeToDisease/weibull.Rmd")
@@ -132,7 +130,7 @@ smooth_incidence_liab = function(first){
   temp["Incidence"] = 0
   temp$Age = as.numeric(as.character(temp$Age))
   for(j in unique(first$`Genetic Liability`)){
-    prev=50
+    prev=length(which(first$`Genetic Liability`==j))
     add=0
     for(i in sort(unique(temp$Age))){
       cases = dim(first[which(first$Age==i & first$`Genetic Liability`==j),])[1]
