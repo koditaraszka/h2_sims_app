@@ -7,7 +7,8 @@ library(patchwork)
 library(dplyr)
 library(coxmeg)
 source("updated_func_reml.R")
-source("generic_plotting.R")
+source("plotting.R")
+source("analyses.R")
 
 ui = div(style = 
         "width: 100%; margin: 0 0 0 0; padding: 0 0 0 0; left: 0; right: 10px; position: absolute;",
