@@ -11,7 +11,7 @@
 
 
 
-<title>Fully Observed Case-Control: Set Age</title>
+<title>Partially Observed Case-Control: Main Method</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -348,54 +348,65 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Fully Observed Case-Control: Set Age</h1>
+<h1 class="title toc-ignore">Partially Observed Case-Control: Main
+Method</h1>
 
 </div>
 
 
-<pre class="r"><code>setage_fullcc = function(data, minCen, maxCen, minOnset, maxOnset, informative){
+<pre class="r"><code>partcc = function(N, M, h2, K, P, C, minAge, maxAge, unobserved, informative){
+  # helper function for genetics
+  # returns genetic liability and GRM
+  MAF=0.05
+  if(P==1){
+    frac = (K*N)/25
+    maf = 1/frac
+    MAF = max(MAF, maf)
+    gen = gen_liab(N, M, C, h2, MAF)
+    l_g = gen$liab
+    l_e = sqrt(1-h2)*scale(rnorm(N, 0, 1))
+    l = l_g + l_e
+    t = qnorm((1-K))
+    Y = as.numeric(l &gt;= t)
   
-  if(informative==1){
-    
-    # set age for controls
-    controls = length(which(data$Y==0))
-    cenStd = (maxCen-minCen)/4
-    cenMean = mean(c(minCen, maxCen))
-    controlQuants = runif(controls, 0.025, 0.975)
-    cenAge = qnorm(controlQuants, cenMean, cenStd)
+    drop = round(unobserved*length(which(Y==1)))
+    select = sample(which(Y==1), drop, replace = F)
+    Y[select] = 0
   
-    # set age for cases
-    cases = length(which(data$Y==1))
-    onsetStd = (maxOnset-minOnset)/4
-    onsetMean = mean(c(minOnset, maxOnset))
-    casesQuants = runif(cases, 0.025, 0.975)
-    onsetAge = qnorm(casesQuants, onsetMean, onsetStd)
+    # helper function for setting age
+    age = setage_partialcc(data.frame(&quot;Y&quot; = Y, &quot;liab&quot; = l), select, minAge, maxAge, informative)
   
-  } else{
-
-    controls = length(which(data$Y==0))
-    cenStd = (maxCen-minCen)/4
-    cenMean = mean(c(minCen, maxCen))
-    controlQuants = runif(controls, 0.025, 0.975)
-    cenAge = qnorm(controlQuants, cenMean, cenStd)
-
-    # set age for cases
-    p_liab = stats::pnorm(data$liab[which(data$Y==1)], lower.tail = F)
-    move = -1*log(unique(data$K)/p_liab - 1)
-    
-    minCase = abs(min(move))
-    maxCase = abs(max(move))
-    onsetStd = (maxOnset-minOnset)/(minCase + maxCase)
-    onsetMean = mean(c(minOnset, maxOnset))
-    onsetAge = onsetMean + move*onsetStd   
-    
+    return(list(&quot;Y&quot;=Y, &quot;age&quot;=age, &quot;liab&quot;=l, &quot;gen&quot;=l_g, &quot;GRM&quot;=gen$GRM))
   }
-  age = rep(0, length(data$Y))
-  age[which(data$Y==0)] = round(cenAge, 0)
-  age[which(data$Y==1)] = round(onsetAge, 0)
-  return(age)
   
-}</code></pre>
+  frac = (0.5*N)/25
+  maf = 1/frac
+  MAF = max(MAF, maf)
+    
+  gen = gen_liab(2*N/K, M, C, h2, MAF)
+  
+  l_g = gen$liab
+  l_e = sqrt(1-h2)*scale(rnorm(2*N/K, 0, 1))
+  l = l_g + l_e
+  t = qnorm((1-K))
+  Y = as.numeric(l &gt;= t)
+    
+  keepCases = sample(which(Y==1), (0.5+unobserved)*N, replace = F)
+  keepControls = sample(which(Y==0), (0.5-unobserved)*N, replace = F)
+  
+  Y = Y[sort(c(keepCases, keepControls))]
+  gen$GRM = gen$GRM[sort(c(keepCases, keepControls)), sort(c(keepCases, keepControls))]
+  l = l[sort(c(keepCases, keepControls))]
+  drop = round(unobserved*length(which(Y==1)))
+  select = sample(which(Y==1), drop, replace = F)
+  Y[select] = 0
+  
+  # helper function for setting age
+  age = setage_partialcc(data.frame(&quot;Y&quot; = Y, &quot;liab&quot; = l), select, minAge, maxAge, informative)
+  
+  return(list(&quot;Y&quot;=Y, &quot;age&quot;=age, &quot;liab&quot;=l, &quot;gen&quot;=l_g, &quot;GRM&quot;=gen$GRM))
+  
+} </code></pre>
 
 
 

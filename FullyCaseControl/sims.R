@@ -9,7 +9,7 @@ fluidPage(
                 column(6,
                     numericInput("fullccSims", 
                         label = h4("Number of Runs:"), 
-                        value = 1, step=1,min=1, max=100
+                        value = 10, step=1,min=1, max=100
                     )
                 ),
                 column(6,
@@ -48,7 +48,7 @@ fluidPage(
                 column(6,
                     numericInput("fullccM", 
                         label = h4("Number of SNPs:"),
-                        value = 100, step=100, min=100, max=5000
+                        value = 1000, step=100, min=100, max=5000
                     )
                 ),
                 column(6,
@@ -86,10 +86,10 @@ fluidPage(
                     )
                 ),
                 column(4,
-                       radioButtons("fullccLM", 
-                                          label = h4("Linear Model:"),
-                                          choices = list("REML" = 1,
-                                                         "HE Reg" = 2
+                       radioButtons("fullccInformative", 
+                                          label = h4("Age of Onset:"),
+                                          choices = list("Uninformative of Liability" = 1,
+                                                         "Informative of Liability" = 2
                                           ),
                                           selected = 1
                        )

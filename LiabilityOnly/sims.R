@@ -9,7 +9,7 @@ fluidPage(
                 column(6,
                     numericInput("liabSims", 
                         label = h4("Number of Runs:"), 
-                        value = 1, step=1,min=1, max=100
+                        value = 10, step=1,min=1, max=100
                     )
                 ),
                 column(6,
@@ -37,7 +37,7 @@ fluidPage(
                 column(4,
                     numericInput("liabM", 
                         label = h4("Number of SNPs:"),
-                        value = 100, step=100, min=100, max=5000
+                        value = 1000, step=100, min=100, max=5000
                     )
                 ),
                 column(8,
@@ -48,24 +48,15 @@ fluidPage(
                 )
             ),
             fluidRow(
-                column(8,
+                column(12,
                     checkboxGroupInput("liabModels", 
                         label = h4("Models to compare:"),
                         choices = list("Cox Frailty" = 1,
                                        "Original Liability" = 2,
                                        "RINT Liability" = 3
                         ),
-                        selected = c(2,3)
+                        selected = c(1,2,3)
                     )
-                ),
-                column(4,
-                       radioButtons("liabLM", 
-                                          label = h4("Linear Model:"),
-                                          choices = list("REML" = 1,
-                                                         "HE Reg" = 2
-                                          ),
-                                          selected = 1
-                       )
                 )
             ),
             br(),

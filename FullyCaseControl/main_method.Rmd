@@ -4,7 +4,7 @@ output: html_document
 ---
 
 ```{r, size = 'small'}
-fullcc = function(N, M, h2, K, P, C, minCen, maxCen, minOnset, maxOnset){
+fullcc = function(N, M, h2, K, P, C, minCen, maxCen, minOnset, maxOnset, informative){
   MAF=0.05
   if(P==1){
     frac = (K*N)/25
@@ -19,7 +19,7 @@ fullcc = function(N, M, h2, K, P, C, minCen, maxCen, minOnset, maxOnset){
     t = qnorm((1-K))
     Y = as.numeric(l >= t)
     
-    age = setage_fullcc(Y, minCen, maxCen, minOnset, maxOnset)
+    age = setage_fullcc(data.frame('Y' = Y, 'liab' = l, 'K' = K), minCen, maxCen, minOnset, maxOnset, informative)
     return(list("Y"=Y, "age"=age, "liab"=l, "gen"=l_g, "GRM"=gen$GRM))
   } 
   
@@ -42,7 +42,7 @@ fullcc = function(N, M, h2, K, P, C, minCen, maxCen, minOnset, maxOnset){
   gen$GRM = gen$GRM[sort(c(keepCases, keepControls)), sort(c(keepCases, keepControls))]
   l = l[sort(c(keepCases, keepControls))]
   # helper function for setting age
-  age = setage_fullcc(Y, minCen, maxCen, minOnset, maxOnset)
+  age = setage_fullcc(data.frame('Y' = Y, 'liab' = l, 'K' = K), minCen, maxCen, minOnset, maxOnset, informative)
   
   return(list("Y"=Y, "age"=age, "liab"=l, "gen"=l_g, "GRM"=gen$GRM))
   

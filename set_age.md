@@ -5,27 +5,47 @@ output: html_document
 
 
 ```r
-setage_fullcc = function(Y, minCen, maxCen, minOnset, maxOnset){
+setage_fullcc = function(data, minCen, maxCen, minOnset, maxOnset, informative){
   
-  # set age for controls
-  controls = length(which(Y==0))
-  cenStd = (maxCen-minCen)/4
-  cenMean = mean(c(minCen, maxCen))
-  controlQuants = runif(controls, 0.025, 0.975)
-  cenAge = qnorm(controlQuants, cenMean, cenStd)
+  if(informative==1){
+    
+    # set age for controls
+    controls = length(which(data$Y==0))
+    cenStd = (maxCen-minCen)/4
+    cenMean = mean(c(minCen, maxCen))
+    controlQuants = runif(controls, 0.025, 0.975)
+    cenAge = qnorm(controlQuants, cenMean, cenStd)
   
-  # set age for cases
-  cases = length(which(Y==1))
-  onsetStd = (maxOnset-minOnset)/4
-  onsetMean = mean(c(minOnset, maxOnset))
-  casesQuants = runif(cases, 0.025, 0.975)
-  onsetAge = qnorm(casesQuants, onsetMean, onsetStd)
+    # set age for cases
+    cases = length(which(data$Y==1))
+    onsetStd = (maxOnset-minOnset)/4
+    onsetMean = mean(c(minOnset, maxOnset))
+    casesQuants = runif(cases, 0.025, 0.975)
+    onsetAge = qnorm(casesQuants, onsetMean, onsetStd)
   
-  # return their age in years
-  age = rep(0, length(Y))
-  age[which(Y==0)] = round(cenAge, 0)
-  age[which(Y==1)] = round(onsetAge, 0)
-  return(age)
+  } else{
 
+    controls = length(which(data$Y==0))
+    cenStd = (maxCen-minCen)/4
+    cenMean = mean(c(minCen, maxCen))
+    controlQuants = runif(controls, 0.025, 0.975)
+    cenAge = qnorm(controlQuants, cenMean, cenStd)
+
+    # set age for cases
+    p_liab = stats::pnorm(data$liab[which(data$Y==1)], lower.tail = F)
+    move = -1*log(unique(data$K)/p_liab - 1)
+    
+    minCase = abs(min(move))
+    maxCase = abs(max(move))
+    onsetStd = (maxOnset-minOnset)/(minCase + maxCase)
+    onsetMean = mean(c(minOnset, maxOnset))
+    onsetAge = onsetMean + move*onsetStd   
+    
+  }
+  age = rep(0, length(data$Y))
+  age[which(data$Y==0)] = round(cenAge, 0)
+  age[which(data$Y==1)] = round(onsetAge, 0)
+  return(age)
+  
 }
 ```
