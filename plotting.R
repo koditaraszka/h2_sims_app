@@ -75,15 +75,17 @@ smooth_incidence = function(first, liab = F){
     for(j in unique(first$`Genetic Liability`)){
       prev=length(which(first$`Genetic Liability`==j))
       add=0
+      denom = 0
       for(i in sort(unique(temp$Age))){
         cases = dim(first[which(first$Age==i & first$`Genetic Liability`==j),])[1]
         remain = prev - cases
-        denom = remain + 0.5*cases # all lost mid year
-        update = add + cases/denom
+        denom = denom + remain + 0.5*cases # all lost mid year
+        update = add + cases
         temp[which(temp$Age==i & temp$`Genetic Liability`==j), "Incidence"] = update
         prev = remain
         add = update
       }
+      temp[which(temp$`Genetic Liability`==j), "Incidence"] = temp[which(temp$`Genetic Liability`==j), "Incidence"]/denom
     }
     temp$`Genetic Liability` = factor(temp$`Genetic Liability`, labels = c("Decile 1", "Decile 2", "Decile 3", "Decile 4", "Decile 5", "Decile 6", "Decile 7", "Decile 8", "Decile 9", "Decile 10"),
                                       levels = c("Decile 1", "Decile 2", "Decile 3", "Decile 4", "Decile 5", "Decile 6", "Decile 7", "Decile 8", "Decile 9", "Decile 10"))
@@ -101,16 +103,18 @@ smooth_incidence = function(first, liab = F){
   for(j in unique(first$`Genetic Liability`)){
     prev=length(which(first$`Genetic Liability`==j))
     add=0
+    denom = 0
     for(i in sort(unique(temp$Age))){
       cases = dim(first[which(first$Age==i & first$`Genetic Liability`==j & first$Status=="Case"),])[1]
       controls = dim(first[which(first$Age==i & first$`Genetic Liability`==j & first$Status=="Control"),])[1]
       remain = prev - (cases + controls)
-      denom = remain + (0.5*cases + 0.5*controls) # all lost mid year
-      update = add + cases/denom
+      denom = denom + remain + (0.5*cases + 0.5*controls) # all lost mid year
+      update = add + cases
       temp[which(temp$Age==i & temp$`Genetic Liability`==j), "Incidence"] = update
       prev = remain
       add = update
     }
+    temp[which(temp$`Genetic Liability`==j), "Incidence"] = temp[which(temp$`Genetic Liability`==j), "Incidence"]/denom
   }
   temp$`Genetic Liability` = factor(temp$`Genetic Liability`, labels = c("Decile 1", "Decile 2", "Decile 3", "Decile 4", "Decile 5", "Decile 6", "Decile 7", "Decile 8", "Decile 9", "Decile 10"),
                                     levels = c("Decile 1", "Decile 2", "Decile 3", "Decile 4", "Decile 5", "Decile 6", "Decile 7", "Decile 8", "Decile 9", "Decile 10"))
