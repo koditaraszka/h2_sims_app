@@ -360,13 +360,15 @@ display: none;
   gen = gen_liab(N, M, C, h2, MAF)
   
   l_g = gen$liab
+  cuts = quantile(l_g,probs = seq(0.1, 0.9, 0.1))
+  
   l_e = sqrt(1-h2)*scale(rnorm(N, 0, 1))
   l = l_g + l_e
 
   # helper function for setting age
   age = setage_liability(N, minOnset, maxOnset)
   
-  return(list(&quot;Y&quot;=rep(1,N), &quot;age&quot;=age, &quot;liab&quot;=l, &quot;gen&quot;=l_g, &quot;GRM&quot;=gen$GRM))
+  return(list(&quot;Y&quot;=rep(1,N), &quot;age&quot;=age, &quot;liab&quot;=l, &quot;gen&quot;=l_g, &quot;GRM&quot;=gen$GRM, &quot;cuts&quot; = cuts))
   
 }</code></pre>
 

@@ -359,13 +359,18 @@ Method</h1>
   # returns genetic liability and GRM
   MAF=0.05
   if(P==1){
+    
     frac = (K*N)/25
     maf = 1/frac
     MAF = max(MAF, maf)
+    
     gen = gen_liab(N, M, C, h2, MAF)
     l_g = gen$liab
+    cuts = quantile(l_g,probs = seq(0.1, 0.9, 0.1))
+   
     l_e = sqrt(1-h2)*scale(rnorm(N, 0, 1))
     l = l_g + l_e
+    
     t = qnorm((1-K))
     Y = as.numeric(l &gt;= t)
   
@@ -374,9 +379,9 @@ Method</h1>
     Y[select] = 0
   
     # helper function for setting age
-    age = setage_partialcc(data.frame(&quot;Y&quot; = Y, &quot;liab&quot; = l), select, minAge, maxAge, informative)
+    age = setage_partialcc(data.frame(&quot;Y&quot; = Y, &quot;liab&quot; = l, &#39;K&#39; = K), select, minAge, maxAge, informative)
   
-    return(list(&quot;Y&quot;=Y, &quot;age&quot;=age, &quot;liab&quot;=l, &quot;gen&quot;=l_g, &quot;GRM&quot;=gen$GRM))
+    return(list(&quot;Y&quot; = Y, &quot;age&quot; = age, &quot;liab&quot; = l, &quot;gen&quot; = l_g, &quot;GRM&quot; = gen$GRM, &quot;cuts&quot; = cuts))
   }
   
   frac = (0.5*N)/25
@@ -386,8 +391,11 @@ Method</h1>
   gen = gen_liab(2*N/K, M, C, h2, MAF)
   
   l_g = gen$liab
+  cuts = quantile(l_g,probs = seq(0.1, 0.9, 0.1))
+
   l_e = sqrt(1-h2)*scale(rnorm(2*N/K, 0, 1))
   l = l_g + l_e
+  
   t = qnorm((1-K))
   Y = as.numeric(l &gt;= t)
     
@@ -396,15 +404,18 @@ Method</h1>
   
   Y = Y[sort(c(keepCases, keepControls))]
   gen$GRM = gen$GRM[sort(c(keepCases, keepControls)), sort(c(keepCases, keepControls))]
+  
+  l_g = l_g[sort(c(keepCases, keepControls))]
   l = l[sort(c(keepCases, keepControls))]
+  
   drop = round(unobserved*length(which(Y==1)))
   select = sample(which(Y==1), drop, replace = F)
   Y[select] = 0
   
   # helper function for setting age
-  age = setage_partialcc(data.frame(&quot;Y&quot; = Y, &quot;liab&quot; = l), select, minAge, maxAge, informative)
+  age = setage_partialcc(data.frame(&quot;Y&quot; = Y, &quot;liab&quot; = l, &#39;K&#39; = K), select, minAge, maxAge, informative)
   
-  return(list(&quot;Y&quot;=Y, &quot;age&quot;=age, &quot;liab&quot;=l, &quot;gen&quot;=l_g, &quot;GRM&quot;=gen$GRM))
+  return(list(&quot;Y&quot; = Y, &quot;age&quot; = age, &quot;liab&quot; = l, &quot;gen&quot; = l_g, &quot;GRM&quot; = gen$GRM, &quot;cuts&quot; = cuts))
   
 } </code></pre>
 

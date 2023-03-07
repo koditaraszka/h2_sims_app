@@ -9,13 +9,18 @@ partcc = function(N, M, h2, K, P, C, minAge, maxAge, unobserved, informative){
   # returns genetic liability and GRM
   MAF=0.05
   if(P==1){
+    
     frac = (K*N)/25
     maf = 1/frac
     MAF = max(MAF, maf)
+    
     gen = gen_liab(N, M, C, h2, MAF)
     l_g = gen$liab
+    cuts = quantile(l_g,probs = seq(0.1, 0.9, 0.1))
+   
     l_e = sqrt(1-h2)*scale(rnorm(N, 0, 1))
     l = l_g + l_e
+    
     t = qnorm((1-K))
     Y = as.numeric(l >= t)
   
@@ -24,9 +29,9 @@ partcc = function(N, M, h2, K, P, C, minAge, maxAge, unobserved, informative){
     Y[select] = 0
   
     # helper function for setting age
-    age = setage_partialcc(data.frame("Y" = Y, "liab" = l), select, minAge, maxAge, informative)
+    age = setage_partialcc(data.frame("Y" = Y, "liab" = l, 'K' = K), select, minAge, maxAge, informative)
   
-    return(list("Y"=Y, "age"=age, "liab"=l, "gen"=l_g, "GRM"=gen$GRM))
+    return(list("Y" = Y, "age" = age, "liab" = l, "gen" = l_g, "GRM" = gen$GRM, "cuts" = cuts))
   }
   
   frac = (0.5*N)/25
@@ -36,8 +41,11 @@ partcc = function(N, M, h2, K, P, C, minAge, maxAge, unobserved, informative){
   gen = gen_liab(2*N/K, M, C, h2, MAF)
   
   l_g = gen$liab
+  cuts = quantile(l_g,probs = seq(0.1, 0.9, 0.1))
+
   l_e = sqrt(1-h2)*scale(rnorm(2*N/K, 0, 1))
   l = l_g + l_e
+  
   t = qnorm((1-K))
   Y = as.numeric(l >= t)
     
@@ -46,15 +54,18 @@ partcc = function(N, M, h2, K, P, C, minAge, maxAge, unobserved, informative){
   
   Y = Y[sort(c(keepCases, keepControls))]
   gen$GRM = gen$GRM[sort(c(keepCases, keepControls)), sort(c(keepCases, keepControls))]
+  
+  l_g = l_g[sort(c(keepCases, keepControls))]
   l = l[sort(c(keepCases, keepControls))]
+  
   drop = round(unobserved*length(which(Y==1)))
   select = sample(which(Y==1), drop, replace = F)
   Y[select] = 0
   
   # helper function for setting age
-  age = setage_partialcc(data.frame("Y" = Y, "liab" = l), select, minAge, maxAge, informative)
+  age = setage_partialcc(data.frame("Y" = Y, "liab" = l, 'K' = K), select, minAge, maxAge, informative)
   
-  return(list("Y"=Y, "age"=age, "liab"=l, "gen"=l_g, "GRM"=gen$GRM))
+  return(list("Y" = Y, "age" = age, "liab" = l, "gen" = l_g, "GRM" = gen$GRM, "cuts" = cuts))
   
 } 
 

@@ -60,16 +60,22 @@ fluidPage(
                 )
             ),
             fluidRow(
-                column(12,
-                       checkboxGroupInput("ageonsetModels", 
-                                          label = h4("Models to compare:"),
-                                          choices = list("Cox Frailty" = 1,
-                                                         "Case-Control" = 2,
-                                                         "BoxCox Age-of-onset" = 3,
-                                                         "Log Age-of-Onset" = 4,
-                                                         "RINT Age-of-Onset" = 5
-                                          ),
-                                          selected = c(1,2,3,4,5)
+                column(8,
+                        checkboxGroupInput("ageonsetModels", 
+                                label = h4("Models to compare:"),
+                                choices = list("Cox Frailty" = 1,
+                                               "Case-Control" = 2,
+                                               "BoxCox Age-of-onset" = 3,
+                                               "Log Age-of-Onset" = 4,
+                                               "RINT Age-of-Onset" = 5
+                                ),
+                                selected = c(1,2,3,4,5)
+                       )
+                ),
+                column(4,
+                        sliderInput("ageonsetRange", 
+                            label = h4("Age of Onset Range:"),
+                            min = 18, max = 100, value = c(40,60)
                        )
                 )
             ),

@@ -33,7 +33,7 @@ setage_fullcc = function(data, minCen, maxCen, minOnset, maxOnset, informative){
 
     # set age for cases
     p_liab = stats::pnorm(data$liab[which(data$Y==1)], lower.tail = F)
-    move = -1*log(unique(data$K)/p_liab - 1)
+    move = scale(-1*log(unique(data$K)/p_liab - 1))
     
     minCase = abs(min(move))
     maxCase = abs(max(move))

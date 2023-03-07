@@ -127,14 +127,13 @@ smooth_incidence = function(first, liab = F){
 
 #Overview Plots
 overview = function(first, liab=F){
-  
+  cuts = first$cuts
   if(liab){
     
     first = data.frame(first$age, rep(1, length(first$Y)), first$Y, first$gen)
     colnames(first) = c("Age", "Status", "Liability", "GenLiab")
     first$Status = factor(first$Status, levels = c("Case", "Control"))
     
-    cuts = quantile(first$GenLiab,probs = seq(0.1, 0.9, 0.1))
     first["Genetic Liability"] = "Decile 1"
     first[which(first$GenLiab>cuts[1]),"Genetic Liability"] = "Decile 2"
     first[which(first$GenLiab>cuts[2]),"Genetic Liability"] = "Decile 3"
@@ -161,7 +160,6 @@ overview = function(first, liab=F){
   first[which(first$Status==1),'Status'] = "Case"
   first$Status = factor(first$Status, levels = c("Control", "Case"))
   
-  cuts = quantile(first$GenLiab,probs = seq(0.1, 0.9, 0.1))
   first["Genetic Liability"] = "Decile 1"
   first[which(first$GenLiab>cuts[1]),"Genetic Liability"] = "Decile 2"
   first[which(first$GenLiab>cuts[2]),"Genetic Liability"] = "Decile 3"

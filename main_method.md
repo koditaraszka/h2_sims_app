@@ -5,25 +5,38 @@ output: html_document
 
 
 ```r
-ageonset = function(N, M, h2, K, C, shape){
+ageonset = function(N, M, h2, K, C, minAge, maxAge, shape){
+  
   MAF=0.05
-  # helper function for genetics
-  # returns genetic liability and GRM
+  frac = (K*N)/25
+  maf = 1/frac
+  MAF = max(MAF, maf)
+  
   gen = gen_liab(N, M, C, h2, MAF)
   l_g = gen$liab
+  cuts = quantile(l_g,probs = seq(0.1, 0.9, 0.1))
+  
   l_e = sqrt(1-h2)*scale(rnorm(N, 0, 1))
   l = l_g + l_e
   
-  y = 45 + weibull(N, shape, l)
-  sdY = sd(y)/4
-  death = rep(1,N)
-  
-  t = quantile(y, probs = K) + rnorm(N, sd=sdY)
-  
+  y = weibull(N, shape, l) 
+  t = quantile(y, probs = K)
+  noise = t/4
+  t = t + rnorm(N, sd = noise)
   death = as.numeric(y <= t)
   y <- pmin(y, t)
   
-  return(list("Y"=death, "age"=y, "liab"=l, "gen"=l_g, "GRM"=gen$GRM))
+  ageStd = (maxAge-minAge)/4
+  ageMean = mean(c(minAge, maxAge))
+  ageQuants = runif(length(which(death==1)), 0.025, 0.975)
+  age = qnorm(ageQuants, ageMean, ageStd)
+  
+  y[which(death==1)] = age + y[which(death==1)]
+  y[which(death==0)] = maxAge + 25*scale(y[which(death==0)], center=F)
+  y[which(death==0 & y>100)] = 100
+  y = round(y, 0)
+  
+  return(list("Y"=death, "age"=y, "liab"=l, "gen"=l_g, "GRM"=gen$GRM, "cuts" = cuts))
   
 }
 ```

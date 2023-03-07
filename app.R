@@ -182,11 +182,11 @@ server <- function(input, output) {
         progress$set(message = "Generating Plots", value = 0)
         results = NULL
         isolate({
-            first = ageonset(input$ageonsetN, input$ageonsetM, input$ageonsetH2, input$ageonsetK, input$ageonsetC/100, as.numeric(input$ageonsetWeibull))
+            first = ageonset(input$ageonsetN, input$ageonsetM, input$ageonsetH2, input$ageonsetK, input$ageonsetC/100, input$ageonsetRange[1], input$ageonsetRange[2], as.numeric(input$ageonsetWeibull))
             detail = overview(first)
             for(i in 1:input$ageonsetSims){
                 progress$inc(1/input$ageonsetSims, detail = paste("Running Simulation", i))
-                x = ageonset(input$ageonsetN, input$ageonsetM, input$ageonsetH2, input$ageonsetK, input$ageonsetC/100, as.numeric(input$ageonsetWeibull))
+                x = ageonset(input$ageonsetN, input$ageonsetM, input$ageonsetH2, input$ageonsetK, input$ageonsetC/100, input$ageonsetRange[1], input$ageonsetRange[2], as.numeric(input$ageonsetWeibull))
                 results = rbind(results, runMethods(x, input$ageonsetModels, input$ageonsetK, "ageonset"))
             }
             results = data.frame(results)

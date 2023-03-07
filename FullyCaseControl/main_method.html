@@ -364,13 +364,16 @@ Method</h1>
     gen = gen_liab(N, M, C, h2, MAF)
   
     l_g = gen$liab
+    cuts = quantile(l_g,probs = seq(0.1, 0.9, 0.1))
+    
     l_e = sqrt(1-h2)*scale(rnorm(N, 0, 1))
     l = l_g + l_e
+    
     t = qnorm((1-K))
     Y = as.numeric(l &gt;= t)
     
     age = setage_fullcc(data.frame(&#39;Y&#39; = Y, &#39;liab&#39; = l, &#39;K&#39; = K), minCen, maxCen, minOnset, maxOnset, informative)
-    return(list(&quot;Y&quot;=Y, &quot;age&quot;=age, &quot;liab&quot;=l, &quot;gen&quot;=l_g, &quot;GRM&quot;=gen$GRM))
+    return(list(&quot;Y&quot; = Y, &quot;age&quot; = age, &quot;liab&quot; = l, &quot;gen&quot; = l_g, &quot;GRM&quot; = gen$GRM, &quot;cuts&quot; = cuts))
   } 
   
   frac = (0.5*N)/25
@@ -380,8 +383,11 @@ Method</h1>
   gen = gen_liab(N/K, M, C, h2, MAF)
   
   l_g = gen$liab
+  cuts = quantile(l_g,probs = seq(0.1, 0.9, 0.1))
+  
   l_e = sqrt(1-h2)*scale(rnorm(N/K, 0, 1))
   l = l_g + l_e
+  
   t = qnorm((1-K))
   Y = as.numeric(l &gt;= t)
     
@@ -390,11 +396,14 @@ Method</h1>
   
   Y = Y[sort(c(keepCases, keepControls))]
   gen$GRM = gen$GRM[sort(c(keepCases, keepControls)), sort(c(keepCases, keepControls))]
+  
+  l_g = l_g[sort(c(keepCases, keepControls))]
   l = l[sort(c(keepCases, keepControls))]
+  
   # helper function for setting age
   age = setage_fullcc(data.frame(&#39;Y&#39; = Y, &#39;liab&#39; = l, &#39;K&#39; = K), minCen, maxCen, minOnset, maxOnset, informative)
   
-  return(list(&quot;Y&quot;=Y, &quot;age&quot;=age, &quot;liab&quot;=l, &quot;gen&quot;=l_g, &quot;GRM&quot;=gen$GRM))
+  return(list(&quot;Y&quot;=Y, &quot;age&quot;=age, &quot;liab&quot;=l, &quot;gen&quot;=l_g, &quot;GRM&quot;=gen$GRM, &quot;cuts&quot; = cuts))
   
 }</code></pre>
 

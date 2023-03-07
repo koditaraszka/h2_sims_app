@@ -9,37 +9,57 @@ setage_partialcc = function(data, select, minAge, maxAge, informative){
   
   if(informative==1){
     
-    meanAge = mean(minAge, maxAge)
+    meanAge = mean(c(minAge, maxAge))
     stdAge = (maxAge-minAge)/4
-    quantAge = runif(length(data$Y), 0.025, 0.975)
-    ages = qnorm(quantAge, meanAge, stdAge)
-    return(ages)
+    
+    controls = length(which(data$Y==0))
+    controlQuants = runif(controls, 0.025, 0.975)
+    cenAge = qnorm(controlQuants, meanAge, stdAge)
+  
+    # set age for cases
+    cases = length(which(data$Y==1))
+    casesQuants = runif(cases, 0.025, 0.975)
+    caseAge = qnorm(casesQuants, meanAge, stdAge)
+    
+    age = rep(0, length(data$Y))
+    age[which(data$Y==0)] = round(cenAge, 0)
+    age[which(data$Y==1)] = round(caseAge, 0)
+    
+    return(age)
     
   }
   
-  liab = -1*data$liab #higher liability equals lower age
-  real_cases = c(which(data$Y==1), select)
-  qnorm_cases = qnorm(rank(data$liab[real_cases], ties.method = 'random')/(length(data$liab[real_cases])+1))
+  real_cases = which(data$Y==1)
+  real_controls = which(data$Y==0)
+  if(length(select)!=0){
+    real_cases = sort(c(which(data$Y==1), select))
+    real_controls = real_controls[-which(real_controls %in% select)]
+  }
   
-  controls = length(which(data$Y==0))
+  p_liab = stats::pnorm(data$liab[real_cases], lower.tail = F)
+  move = scale(-1*log(unique(data$K)/p_liab - 1))
+  
+  minCase = abs(min(move))
+  maxCase = abs(max(move))
+  ageStd = (maxAge-minAge)/(minCase + maxCase)
+  ageMean = mean(c(minAge, maxAge))
+  caseAge = ageMean + move*ageStd
+  
+  controls = length(real_controls)
   cenStd = (maxAge-minAge)/4
   cenMean = mean(c(minAge, maxAge))
   controlQuants = runif(controls, 0.025, 0.975)
   cenAge = qnorm(controlQuants, cenMean, cenStd)
-  
-  minCase = abs(min(qnorm_cases))
-  maxCase = abs(max(qnorm_cases))
-  onsetStd = (maxAge-minAge)/(minCase + maxCase)
-  onsetMean = mean(c(minAge, maxAge))
-  onsetAge = onsetMean + qnorm_cases*onsetStd
     
   age = rep(0, length(data$Y))
-  age[which(data$Y==0)] = round(cenAge, 0)
-  age[which(data$Y==1)] = round(onsetAge, 0)
+  age[real_controls] = round(cenAge, 0)
+  age[real_cases] = round(caseAge, 0)
+  
   for(i in select){
     # since these people are unobserved, their age is < age of onset
     age[i] = round(runif(1, min=minAge, max=(age[i]-1)), 0) 
   }
+  
   return(age)
   
 }
