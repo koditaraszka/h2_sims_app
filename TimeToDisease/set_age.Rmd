@@ -1,0 +1,18 @@
+---
+title: "Age-of-Onset (Survival): Main Method: Set Age"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+setage_survival = function(N, K, onset, minAge, maxAge){
+  
+  # set age
+  born = runif(N, min=2023-maxAge, 2023-minAge)
+  y = onset - born
+  y[which(y>100)] = 100
+  
+  # return their age in years
+  return(y)
+  
+}
+```

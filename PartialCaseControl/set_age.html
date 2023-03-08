@@ -372,8 +372,8 @@ Age</h1>
     caseAge = qnorm(casesQuants, meanAge, stdAge)
     
     age = rep(0, length(data$Y))
-    age[which(data$Y==0)] = round(cenAge, 0)
-    age[which(data$Y==1)] = round(caseAge, 0)
+    age[which(data$Y==0)] = round(cenAge, 1)
+    age[which(data$Y==1)] = round(caseAge, 1)
     
     return(age)
     
@@ -402,12 +402,12 @@ Age</h1>
   cenAge = qnorm(controlQuants, cenMean, cenStd)
     
   age = rep(0, length(data$Y))
-  age[real_controls] = round(cenAge, 0)
-  age[real_cases] = round(caseAge, 0)
+  age[real_controls] = round(cenAge, 1)
+  age[real_cases] = round(caseAge, 1)
   
   for(i in select){
     # since these people are unobserved, their age is &lt; age of onset
-    age[i] = round(runif(1, min=minAge, max=(age[i]-1)), 0) 
+    age[i] = round(runif(1, min=minAge, max=(age[i]-1)), 1) 
   }
   
   return(age)

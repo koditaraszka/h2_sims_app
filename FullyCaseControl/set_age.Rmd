@@ -42,8 +42,8 @@ setage_fullcc = function(data, minCen, maxCen, minOnset, maxOnset, informative){
     
   }
   age = rep(0, length(data$Y))
-  age[which(data$Y==0)] = round(cenAge, 0)
-  age[which(data$Y==1)] = round(onsetAge, 0)
+  age[which(data$Y==0)] = round(cenAge, 1)
+  age[which(data$Y==1)] = round(onsetAge, 1)
   return(age)
   
 }

@@ -19,22 +19,14 @@ ageonset = function(N, M, h2, K, C, minAge, maxAge, shape){
   l_e = sqrt(1-h2)*scale(rnorm(N, 0, 1))
   l = l_g + l_e
   
-  y = weibull(N, shape, l) 
+  y = weibull(N, shape, l)
   t = quantile(y, probs = K)
-  noise = t/4
-  t = t + rnorm(N, sd = noise)
+  
   death = as.numeric(y <= t)
+  varY = (minAge+maxAge)*2
   y <- pmin(y, t)
-  
-  ageStd = (maxAge-minAge)/4
-  ageMean = mean(c(minAge, maxAge))
-  ageQuants = runif(length(which(death==1)), 0.025, 0.975)
-  age = qnorm(ageQuants, ageMean, ageStd)
-  
-  y[which(death==1)] = age + y[which(death==1)]
-  y[which(death==0)] = maxAge + 25*scale(y[which(death==0)], center=F)
-  y[which(death==0 & y>100)] = 100
-  y = round(y, 0)
+  y = y*varY + minAge
+  y = round(y, 1)
   
   return(list("Y"=death, "age"=y, "liab"=l, "gen"=l_g, "GRM"=gen$GRM, "cuts" = cuts))
   

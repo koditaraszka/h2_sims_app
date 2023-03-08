@@ -1,5 +1,5 @@
 ---
-title: "Weibull Distribution"
+title: "Age-of-Onset (Survival): Weibull Distribution"
 output: html_document
 ---
 
@@ -10,5 +10,6 @@ weibull = function(N, shape, scale){
   base = exp(scale)
   u = log(1-runif(N))
   return((-1*u/base)^(1/shape))
+  
 }
 ```

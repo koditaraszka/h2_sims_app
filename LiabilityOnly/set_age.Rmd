@@ -13,7 +13,7 @@ setage_liability = function(N, minOnset, maxOnset){
   onsetAge = qnorm(casesQuants, onsetMean, onsetStd)
   
   # return their age in years
-  return(round(onsetAge, 0))
+  return(round(onsetAge, 1))
 
 }
 ```

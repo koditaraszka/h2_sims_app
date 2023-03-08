@@ -5,6 +5,7 @@ rmarkdown::render("LiabilityOnly/main_method.Rmd")
 rmarkdown::render("LiabilityOnly/set_age.Rmd")
 rmarkdown::render("TimeToDisease/main_method.Rmd")
 rmarkdown::render("TimeToDisease/weibull.Rmd")
+rmarkdown::render("TimeToDisease/set_age.Rmd")
 rmarkdown::render("PartialCaseControl/main_method.Rmd")
 rmarkdown::render("PartialCaseControl/set_age.Rmd")
 
