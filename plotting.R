@@ -18,9 +18,9 @@ age_dist = function(first, method = 'casecontrol'){
   }
   
   if(method == 'ageonset'){
-    controls = unique(first[which(first$Status=="Control"),"Age"])
+    controls = unique(first[which(first$Status=="Control"),"Age"]) + 0.5
     return(ggplot(first[which(first$Status=="Case"),]) + geom_histogram(aes(x=Age, y = ..count..), binwidth = 2, fill = "#00BFC4", alpha = 0.8) +
-             geom_density(aes(x=Age, y = 2*..count..)) + geom_vline(xintercept = controls, color = "#F8766D", size=2) + ylab("Count") + 
+             geom_density(aes(x=Age, y = 2*..count..)) + geom_vline(xintercept = controls, color = "#F8766D", size=3) + ylab("Count") + 
              ggtitle("Age Distribution") + all_theme + theme(legend.position = "none"))
   }
   
