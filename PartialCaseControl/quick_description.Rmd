@@ -6,10 +6,11 @@ output: html_document
 The phenotype of interest, $Y$, is a binary trait measured for $N$ unrelated individuals generated based on the liability threshold model. 
 
 For individuals who develop the trait, there are two possible models their age of onset could be drawn from.
-\begin{enumerate}
-  \item age-of-onset follows a truncated Gaussian distribution with the truncation occurring at $\Phi^{-1}(0.025)$ and $\Phi^{-1}(0.975)$ quantiles.
-  \item age-of-onset follows a logistic function based on the liability
-\end{enumerate}
+
+1. age-of-onset follows a truncated Gaussian distribution with the truncation occurring at $\Phi^{-1}(0.025)$ and $\Phi^{-1}(0.975)$ quantiles.
+
+2. age-of-onset follows a logistic function based on the liability
+
 
 For a subset of cases, they are censored before their age-of-onset and are therefore considered cases though their liability exceeds the threshold.
 

@@ -31,7 +31,7 @@ From this generative model, we begin with the assumption that only the liability
 
 For individuals who do not develop the disease, only the censoring age is observed (e.g. the date interviewed). The age of censoring also follows a truncated Gaussian with the minimum and maximum representing $\Phi^{-1}(0.025)$ and $\Phi^{-1}(0.975)$, respectively. 
 
-While all patients were interviewed (i.e. everyone experiences the censoring event), it is assumed that all cases/carriers have an age-of-onset that precedes the censoring age. We relax this assumption in *Partially Observed Case-Control Status*.
+We assume all cases/carriersare observed which is to say they have an age-of-onset that precedes the censoring age. This assumption is relaxed in *Partially Observed Case-Control Status*.
 
 Separately, we also relax the assumption that the age-of-onset is not a function of the liability. Now, we assume that the age-of-onset is drawn from the logistic function based on the population prevalence (K) and liability (l):
 
