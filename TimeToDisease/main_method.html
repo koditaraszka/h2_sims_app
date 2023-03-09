@@ -371,10 +371,9 @@ display: none;
   t = quantile(y, probs = K)
   
   death = as.numeric(y &lt;= t)
-  varY = (minAge+maxAge)*2
+  
   y &lt;- pmin(y, t)
-  y = y*varY + minAge
-  y = round(y, 1)
+  y = setage_survival(y, minAge, maxAge)
   
   return(list(&quot;Y&quot;=death, &quot;age&quot;=y, &quot;liab&quot;=l, &quot;gen&quot;=l_g, &quot;GRM&quot;=gen$GRM, &quot;cuts&quot; = cuts))
   

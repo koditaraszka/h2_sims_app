@@ -4,15 +4,12 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-setage_survival = function(N, K, onset, minAge, maxAge){
+setage_survival = function(onset, minAge, maxAge){
   
-  # set age
-  born = runif(N, min=2023-maxAge, 2023-minAge)
-  y = onset - born
-  y[which(y>100)] = 100
-  
-  # return their age in years
-  return(y)
+  maxTTE = max(onset)
+  minTTE = min(onset)
+  onset = minAge + (onset-minTTE)/(maxTTE-minTTE)*(maxAge - minAge)
+  onset = round(onset, 1)
   
 }
 ```

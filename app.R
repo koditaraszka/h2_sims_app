@@ -15,7 +15,7 @@ ui = div(style =
         "width: 100%; margin: 0 0 0 0; padding: 0 0 0 0; left: 0; right: 10px; position: absolute;",
         navbarPage("Heritability of Disease",
             theme=shinytheme('flatly'),
-            collapsible = T,
+            collapsible = TRUE,
             navbarMenu("About",
                 tabPanel("Introduction to the App",
                     source("About/about_app.R")$value
@@ -132,7 +132,7 @@ server <- function(input, output) {
         results = NULL
         isolate({
             first = liab(input$liabN, input$liabM, input$liabH2, input$liabC/100, input$liabOnset[1], input$liabOnset[2])
-            detail = overview(first, TRUE)
+            detail = overview(first, "liab")
             for(i in 1:input$liabSims){
                 progress$inc(1/input$liabSims, detail = paste("Running Simulation", i))
                 x=liab(input$liabN, input$liabM, input$liabH2, input$liabC/100, input$liabOnset[1], input$liabOnset[2])
@@ -140,7 +140,7 @@ server <- function(input, output) {
             }
             results = data.frame(results)
             colnames(results) = c("Tau", "BinGRMR", "LogGRMR", "BoxCoxGRMR", "QnormGRMR", "BinGRMH", "LogGRMH", "BoxCoxGRMH", "QnormGRMH")
-            main_plot = plot_results(results, input$liabModels, input$liabH2, input$liabSims, TRUE)
+            main_plot = plot_results(results, input$liabModels, input$liabH2, input$liabSims, "liab")
         })
         
         topdesign="
@@ -183,7 +183,7 @@ server <- function(input, output) {
         results = NULL
         isolate({
             first = ageonset(input$ageonsetN, input$ageonsetM, input$ageonsetH2, input$ageonsetK, input$ageonsetC/100, input$ageonsetRange[1], input$ageonsetRange[2], as.numeric(input$ageonsetWeibull))
-            detail = overview(first)
+            detail = overview(first, "ageonset")
             for(i in 1:input$ageonsetSims){
                 progress$inc(1/input$ageonsetSims, detail = paste("Running Simulation", i))
                 x = ageonset(input$ageonsetN, input$ageonsetM, input$ageonsetH2, input$ageonsetK, input$ageonsetC/100, input$ageonsetRange[1], input$ageonsetRange[2], as.numeric(input$ageonsetWeibull))

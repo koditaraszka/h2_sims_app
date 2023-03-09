@@ -23,10 +23,9 @@ ageonset = function(N, M, h2, K, C, minAge, maxAge, shape){
   t = quantile(y, probs = K)
   
   death = as.numeric(y <= t)
-  varY = (minAge+maxAge)*2
+  
   y <- pmin(y, t)
-  y = y*varY + minAge
-  y = round(y, 1)
+  y = setage_survival(y, minAge, maxAge)
   
   return(list("Y"=death, "age"=y, "liab"=l, "gen"=l_g, "GRM"=gen$GRM, "cuts" = cuts))
   

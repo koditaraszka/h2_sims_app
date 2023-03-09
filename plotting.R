@@ -10,20 +10,29 @@ methods_colors = c("Cox Frailty" = "#e41a1c", "Case-Control Status" = "#ff7f00",
                    "Log Age-of-Onset" = "#4daf4a", "RINT Age-of-Onset" = "#984ea3")
 
 
-age_dist = function(first, liab = F){
-  if(liab){
-    return(ggplot(first) + geom_histogram(aes(x=Age, y = ..count.., fill="#F8766D"), binwidth = 2, alpha =0.8) + 
+age_dist = function(first, method = 'casecontrol'){
+  
+  if(method == 'liab'){
+    return(ggplot(first) + geom_histogram(aes(x=Age, y = ..count..), binwidth = 2, fill = "#00BFC4", alpha = 0.8) +
              geom_density(aes(x=Age, y = 2*..count..)) + ylab("Count") + ggtitle("Age Distribution") + all_theme + theme(legend.position = "none"))
   }
-  return(ggplot(first) + geom_histogram(aes(x=Age, y = ..count.., fill=Status), binwidth = 2, alpha =0.8) + 
+  
+  if(method == 'ageonset'){
+    controls = unique(first[which(first$Status=="Control"),"Age"])
+    return(ggplot(first[which(first$Status=="Case"),]) + geom_histogram(aes(x=Age, y = ..count..), binwidth = 2, fill = "#00BFC4", alpha = 0.8) +
+             geom_density(aes(x=Age, y = 2*..count..)) + geom_vline(xintercept = controls, color = "#F8766D", size=2) + ylab("Count") + 
+             ggtitle("Age Distribution") + all_theme + theme(legend.position = "none"))
+  }
+  
+  return(ggplot(first) + geom_histogram(aes(x=Age, y = ..count.., fill=Status), binwidth = 2, alpha = 0.8) + 
     geom_density(aes(x=Age, y = 2*..count..)) + ylab("Count") + ggtitle("Age Distribution") + all_theme)
   
 }
 
 # Risk by Genetic Liability Plot
-risk_bar = function(first, liab = F){
+risk_bar = function(first, method = 'casecontrol'){
 
-  if(liab){
+  if(method == 'liab'){
     
     data = first %>% count(`Genetic Liability`) %>% mutate(prop = n/nrow(first))
     for(i in c("Decile 1", "Decile 2", "Decile 3", "Decile 4", "Decile 5", "Decile 6", "Decile 7", "Decile 8", "Decile 9", "Decile 10")){
@@ -63,9 +72,9 @@ risk_bar = function(first, liab = F){
 }
 
 # Cumulative Incidence Rate Plot
-smooth_incidence = function(first, liab = F){
+smooth_incidence = function(first, method = 'casecontrol'){
   
-  if(liab){
+  if(method == 'liab'){
     
     temp = data.frame(table(first$Age, first$`Genetic Liability`))
     temp = subset(temp, select = c(Var1, Var2))
@@ -126,39 +135,24 @@ smooth_incidence = function(first, liab = F){
 }
 
 #Overview Plots
-overview = function(first, liab=F){
+overview = function(first, method = 'casecontrol'){
+  
   cuts = first$cuts
-  if(liab){
+  if(method == 'liab'){
     
     first = data.frame(first$age, rep(1, length(first$Y)), first$Y, first$gen)
     colnames(first) = c("Age", "Status", "Liability", "GenLiab")
     first$Status = factor(first$Status, levels = c("Case", "Control"))
     
-    first["Genetic Liability"] = "Decile 1"
-    first[which(first$GenLiab>cuts[1]),"Genetic Liability"] = "Decile 2"
-    first[which(first$GenLiab>cuts[2]),"Genetic Liability"] = "Decile 3"
-    first[which(first$GenLiab>cuts[3]),"Genetic Liability"] = "Decile 4"
-    first[which(first$GenLiab>cuts[4]),"Genetic Liability"] = "Decile 5"
-    first[which(first$GenLiab>cuts[5]),"Genetic Liability"] = "Decile 6"
-    first[which(first$GenLiab>cuts[6]),"Genetic Liability"] = "Decile 7"
-    first[which(first$GenLiab>cuts[7]),"Genetic Liability"] = "Decile 8"
-    first[which(first$GenLiab>cuts[8]),"Genetic Liability"] = "Decile 9"
-    first[which(first$GenLiab>cuts[9]),"Genetic Liability"] = "Decile 10"
-    first$`Genetic Liability` = factor(first$`Genetic Liability`, labels = c("Decile 1", "Decile 2", "Decile 3", "Decile 4", "Decile 5", "Decile 6", "Decile 7", "Decile 8", "Decile 9", "Decile 10"),
-                                       levels = c("Decile 1", "Decile 2", "Decile 3", "Decile 4", "Decile 5", "Decile 6", "Decile 7", "Decile 8", "Decile 9", "Decile 10"))
+  } else{
     
-    ageDist = age_dist(first, T)
-    risk = risk_bar(first, T)
-    incidence = smooth_incidence(first, T)
-    return(list('risk'=risk, 'incidence' = incidence, 'ageDist'=ageDist))
+    first = data.frame(first$age, first$Y, first$liab, first$gen)
+    colnames(first) = c("Age", "Status", "Liability", "GenLiab")
+    first[which(first$Status==0),'Status'] = "Control"
+    first[which(first$Status==1),'Status'] = "Case"
+    first$Status = factor(first$Status, levels = c("Control", "Case"))
     
   }
-  
-  first = data.frame(first$age, first$Y, first$liab, first$gen)
-  colnames(first) = c("Age", "Status", "Liability", "GenLiab")
-  first[which(first$Status==0),'Status'] = "Control"
-  first[which(first$Status==1),'Status'] = "Case"
-  first$Status = factor(first$Status, levels = c("Control", "Case"))
   
   first["Genetic Liability"] = "Decile 1"
   first[which(first$GenLiab>cuts[1]),"Genetic Liability"] = "Decile 2"
@@ -170,19 +164,22 @@ overview = function(first, liab=F){
   first[which(first$GenLiab>cuts[7]),"Genetic Liability"] = "Decile 8"
   first[which(first$GenLiab>cuts[8]),"Genetic Liability"] = "Decile 9"
   first[which(first$GenLiab>cuts[9]),"Genetic Liability"] = "Decile 10"
-  first$`Genetic Liability` = factor(first$`Genetic Liability`, labels = c("Decile 1", "Decile 2", "Decile 3", "Decile 4", "Decile 5", "Decile 6", "Decile 7", "Decile 8", "Decile 9", "Decile 10"),
-                              levels = c("Decile 1", "Decile 2", "Decile 3", "Decile 4", "Decile 5", "Decile 6", "Decile 7", "Decile 8", "Decile 9", "Decile 10"))
+  first$`Genetic Liability` = factor(first$`Genetic Liability`, labels = c("Decile 1", "Decile 2", "Decile 3", 
+                                                                           "Decile 4", "Decile 5", "Decile 6", "Decile 7", 
+                                                                           "Decile 8", "Decile 9", "Decile 10"),
+                              levels = c("Decile 1", "Decile 2", "Decile 3", "Decile 4", "Decile 5", 
+                                         "Decile 6", "Decile 7", "Decile 8", "Decile 9", "Decile 10"))
     
-  ageDist = age_dist(first)
-  risk = risk_bar(first)
-  incidence = smooth_incidence(first)
+  ageDist = age_dist(first, method)
+  risk = risk_bar(first, method)
+  incidence = smooth_incidence(first, method)
   return(list('risk'=risk, 'incidence'=incidence, 'ageDist'=ageDist))
   
 }
 
-plot_results = function(results, models, h2, sims, liab = F){
+plot_results = function(results, models, h2, sims, method = 'casecontrol'){
   
-  if(liab){
+  if(method == 'liab'){
     missing = NULL
     final = data.frame("Models" = rep(models,2), "Methods" = c(rep("REML", length(models)), rep("HE Reg", length(models))))
     if("1" %in% models){
