@@ -49,7 +49,7 @@ fluidPage(
             ),
             fluidRow(
                 column(8,
-                       checkboxGroupInput("fullccModels", 
+                       checkboxGroupInput("liabModels", 
                                           label = h4("Models to compare:"),
                                           choices = list("Cox Frailty" = 1,
                                                          "Case-Control" = 2,
@@ -61,7 +61,7 @@ fluidPage(
                        )
                 ),
                 column(4,
-                       radioButtons("fullccInformative", 
+                       radioButtons("liabInformative", 
                                     label = h4("Age of Onset:"),
                                     choices = list("Uninformative of Liability" = 1,
                                                    "Informative of Liability" = 2
