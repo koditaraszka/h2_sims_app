@@ -12,6 +12,6 @@ For individuals who develop the trait, there are two possible models their age o
 2. age-of-onset follows a logistic function based on the liability
 
 
-For a subset of cases, they are censored before their age-of-onset and are therefore considered cases though their liability exceeds the threshold.
+For a subset of cases, they are censored before their age-of-onset and are therefore considered controls though their liability exceeds the threshold.
 
-For individuals who do not develop the disease, their age of censoring (e.g. age when interviewed) follows a truncated Gaussian distribution with truncation occurring at $\Phi^{-1}(0.025)$ and $\Phi^{-1}(0.975)$ quantiles. It can be thought as though everyone has a censoring/interview age that follows this distribution, but the age-of-onset is fully observed for all cases (i.e. precedes their age of censoring).
+For individuals who do not develop the disease, their age of censoring  follows a truncated Gaussian distribution with truncation occurring at $\Phi^{-1}(0.025)$ and $\Phi^{-1}(0.975)$ quantiles. It can be thought as though everyone has a censoring/interview age that follows this distribution, but the age-of-onset is observed for cases (i.e. precedes their age of censoring).

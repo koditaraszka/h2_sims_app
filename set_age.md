@@ -1,51 +1,16 @@
 ---
-title: "Fully Observed Case-Control: Set Age"
+title: "Age-of-Onset (Survival): Set Age"
 output: html_document
 ---
 
 
 ```r
-setage_fullcc = function(data, minCen, maxCen, minOnset, maxOnset, informative){
+setage_survival = function(onset, minAge, maxAge){
   
-  if(informative==1){
-    
-    # set age for controls
-    controls = length(which(data$Y==0))
-    cenStd = (maxCen-minCen)/4
-    cenMean = mean(c(minCen, maxCen))
-    controlQuants = runif(controls, 0.025, 0.975)
-    cenAge = qnorm(controlQuants, cenMean, cenStd)
-  
-    # set age for cases
-    cases = length(which(data$Y==1))
-    onsetStd = (maxOnset-minOnset)/4
-    onsetMean = mean(c(minOnset, maxOnset))
-    casesQuants = runif(cases, 0.025, 0.975)
-    onsetAge = qnorm(casesQuants, onsetMean, onsetStd)
-  
-  } else{
-
-    controls = length(which(data$Y==0))
-    cenStd = (maxCen-minCen)/4
-    cenMean = mean(c(minCen, maxCen))
-    controlQuants = runif(controls, 0.025, 0.975)
-    cenAge = qnorm(controlQuants, cenMean, cenStd)
-
-    # set age for cases
-    p_liab = stats::pnorm(data$liab[which(data$Y==1)], lower.tail = F)
-    move = -1*log(unique(data$K)/p_liab - 1)
-    
-    minCase = abs(min(move))
-    maxCase = abs(max(move))
-    onsetStd = (maxOnset-minOnset)/(minCase + maxCase)
-    onsetMean = mean(c(minOnset, maxOnset))
-    onsetAge = onsetMean + move*onsetStd   
-    
-  }
-  age = rep(0, length(data$Y))
-  age[which(data$Y==0)] = round(cenAge, 1)
-  age[which(data$Y==1)] = round(onsetAge, 1)
-  return(age)
+  maxTTE = max(onset)
+  minTTE = min(onset)
+  onset = minAge + (onset-minTTE)/(maxTTE-minTTE)*(maxAge - minAge)
+  onset = round(onset, 1)
   
 }
 ```

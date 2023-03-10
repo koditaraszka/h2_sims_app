@@ -39,11 +39,10 @@ setage_partialcc = function(data, select, minAge, maxAge, informative){
   p_liab = stats::pnorm(data$liab[real_cases], lower.tail = F)
   move = scale(-1*log(unique(data$K)/p_liab - 1))
   
-  minCase = abs(min(move))
-  maxCase = abs(max(move))
-  ageStd = (maxAge-minAge)/(minCase + maxCase)
-  ageMean = mean(c(minAge, maxAge))
-  caseAge = ageMean + move*ageStd
+  minMove= min(move)
+  maxMove = max(move)
+  
+  onsetAge = minOnset + ((move - minMove)/(maxMove - minMove))*(maxOnset-minOnset)
   
   controls = length(real_controls)
   cenStd = (maxAge-minAge)/4

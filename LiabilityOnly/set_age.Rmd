@@ -4,15 +4,27 @@ output: html_document
 ---
 
 ```{r, size = 'small'}
-setage_liability = function(N, minOnset, maxOnset){
+setage_liability = function(N, liability, minOnset, maxOnset, informative){
   
-  # set age
-  onsetStd = (maxOnset-minOnset)/4
-  onsetMean = mean(c(minOnset, maxOnset))
-  casesQuants = runif(N, 0.025, 0.975)
-  onsetAge = qnorm(casesQuants, onsetMean, onsetStd)
+   if(informative==1){
   
-  # return their age in years
+    # set age for cases
+    onsetStd = (maxOnset-minOnset)/4
+    onsetMean = mean(c(minOnset, maxOnset))
+    ageQuants = runif(N, 0.025, 0.975)
+    onsetAge = qnorm(ageQuants, onsetMean, onsetStd)
+    return(round(onsetAge, 1))
+  
+  }
+    
+  # set age for cases
+  p_liab = stats::pnorm(liability, lower.tail = F)
+  move = -1*log(1/p_liab - 1)
+    
+  minMove= min(move)
+  maxMove = max(move)
+  
+  onsetAge = minOnset + ((move - minMove)/(maxMove - minMove))*(maxOnset-minOnset)
   return(round(onsetAge, 1))
 
 }

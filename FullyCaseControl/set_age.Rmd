@@ -12,6 +12,7 @@ setage_fullcc = function(data, minCen, maxCen, minOnset, maxOnset, informative){
     controls = length(which(data$Y==0))
     cenStd = (maxCen-minCen)/4
     cenMean = mean(c(minCen, maxCen))
+    
     controlQuants = runif(controls, 0.025, 0.975)
     cenAge = qnorm(controlQuants, cenMean, cenStd)
   
@@ -19,6 +20,7 @@ setage_fullcc = function(data, minCen, maxCen, minOnset, maxOnset, informative){
     cases = length(which(data$Y==1))
     onsetStd = (maxOnset-minOnset)/4
     onsetMean = mean(c(minOnset, maxOnset))
+    
     casesQuants = runif(cases, 0.025, 0.975)
     onsetAge = qnorm(casesQuants, onsetMean, onsetStd)
   
@@ -34,13 +36,13 @@ setage_fullcc = function(data, minCen, maxCen, minOnset, maxOnset, informative){
     p_liab = stats::pnorm(data$liab[which(data$Y==1)], lower.tail = F)
     move = -1*log(unique(data$K)/p_liab - 1)
     
-    minCase = abs(min(move))
-    maxCase = abs(max(move))
-    onsetStd = (maxOnset-minOnset)/(minCase + maxCase)
-    onsetMean = mean(c(minOnset, maxOnset))
-    onsetAge = onsetMean + move*onsetStd   
+    minMove= min(move)
+    maxMove = max(move)
+  
+    onsetAge = minOnset + ((move - minMove)/(maxMove - minMove))*(maxOnset-minOnset)
     
   }
+  
   age = rep(0, length(data$Y))
   age[which(data$Y==0)] = round(cenAge, 1)
   age[which(data$Y==1)] = round(onsetAge, 1)

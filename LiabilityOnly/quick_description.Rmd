@@ -2,7 +2,7 @@
 title: "Continuous Liability: Quick Description"
 output: html_document
 ---
-The phenotype of interest, $Y$, is a quantitative trait for $N$ unrelated individuals. This can be thought of as the continuous liability that is traditionally not observed in the liability threshold model.
+The phenotype of interest, $l$, is a quantitative trait for $N$ unrelated individuals. This can be thought of as the continuous liability that is traditionally not observed in the liability threshold model.
 
 We will assume everyone is a case and that there are two possible models their age of onset could be drawn from.
 

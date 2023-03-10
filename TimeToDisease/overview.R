@@ -27,10 +27,15 @@ fluidRow(
                     h5(HTML(mark_html(knit("TimeToDisease/weibull.Rmd", quiet = T))))
                 )
             ),
+            tabPanel(h4("Set Age"),
+                column(width=12,
+                    h5(HTML(mark_html(knit("TimeToDisease/set_age.Rmd", quiet = T))))
+                )
+            ),
             tabPanel(h4("Genetic Liability"),
-                     column(width=12,
-                            h5(HTML(mark_html(knit("genetic_liability.Rmd", quiet = T))))
-                     )
+                column(width=12,
+                    h5(HTML(mark_html(knit("genetic_liability.Rmd", quiet = T))))
+                )
             )
         )
     )

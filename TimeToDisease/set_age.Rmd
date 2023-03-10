@@ -1,9 +1,9 @@
 ---
-title: "Age-of-Onset (Survival): Main Method: Set Age"
+title: "Age-of-Onset (Survival): Set Age"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r, size = 'small'}
 setage_survival = function(onset, minAge, maxAge){
   
   maxTTE = max(onset)
