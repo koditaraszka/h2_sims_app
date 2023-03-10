@@ -366,7 +366,7 @@ display: none;
   l = l_g + l_e
 
   # helper function for setting age
-  age = setage_liability(N, minOnset, maxOnset, informative)
+  age = setage_liability(N, l, minOnset, maxOnset, informative)
   
   return(list(&quot;Y&quot;=rep(1,N), &quot;age&quot;=age, &quot;liab&quot;=l, &quot;gen&quot;=l_g, &quot;GRM&quot;=gen$GRM, &quot;cuts&quot; = cuts))
   
