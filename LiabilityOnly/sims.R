@@ -53,9 +53,7 @@ fluidPage(
                                           label = h4("Models to compare:"),
                                           choices = list("Cox Frailty" = 1,
                                                          "Case-Control" = 2,
-                                                         "BoxCox Age-of-onset" = 3,
-                                                         "Log Age-of-Onset" = 4,
-                                                         "RINT Age-of-Onset" = 5
+                                                         "RINT Age-of-Onset" = 3
                                           ),
                                           selected = c(1,2,3,4,5)
                        )

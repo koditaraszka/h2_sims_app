@@ -179,6 +179,77 @@ overview = function(first, method = 'casecontrol'){
 
 plot_results = function(results, models, h2, sims, method = 'casecontrol'){
   
+  if(method == 'liab'){
+    missing = NULL
+    final = data.frame("Models" = rep(models,2), "Methods" = c(rep("REML", length(models)), rep("HE Reg", length(models))))
+    if("1" %in% models){
+      mods = models[models!=1]
+      final = data.frame("Models" = c("1", rep(mods, 2)), "Methods" = c(rep("REML", 1+length(mods)), rep("HE Reg", length(mods))))
+    }
+    
+    final["H2"] = NA
+    final["SE"] = NA
+    if("1" %in% models){
+      f = dim(results[which(is.na(results$Tau)),])[1]
+      if(f > 0){
+        missing = c(missing, paste("Cox Frailty has", f, "missing simulations"))
+      }
+      final[which(final$Models=="1" & final$Methods=="REML"),"H2"] = mean(results$Tau, na.rm = T)
+      final[which(final$Models=="1" & final$Methods=="REML"),"SE"] = sd(results$Tau, na.rm = T)/sqrt(sims-f)
+    }
+    
+    if("2" %in% models){
+      f = dim(results[which(is.na(results$BinGRM)),])[1]
+      if(f > 0){
+        missing = c(missing, paste("Case-Control Status has", f, "missing simulations"))
+      }
+      final[which(final$Models=="2" & final$Methods=="REML"),"H2"] = mean(results$BinGRMR, na.rm = T)
+      final[which(final$Models=="2" & final$Methods=="REML"),"SE"] = sd(results$BinGRMR, na.rm = T)/sqrt(sims-f)
+      final[which(final$Models=="2" & final$Methods=="HE Reg"),"H2"] = mean(results$BinGRMH, na.rm = T)
+      final[which(final$Models=="2" & final$Methods=="HE Reg"),"SE"] = sd(results$BinGRMH, na.rm = T)/sqrt(sims-f)
+    }
+    
+    if("3" %in% models){
+      f = dim(results[which(is.na(results$QnormGRM)),])[1]
+      if(f > 0){
+        missing = c(missing, paste("RINT Age-of-Onset has", f, "missing simulations"))
+      }
+      final[which(final$Models=="3" & final$Methods=="REML"),"H2"] = mean(results$QnormGRMR, na.rm = T)
+      final[which(final$Models=="3" & final$Methods=="REML"),"SE"] = sd(results$QnormGRMR, na.rm = T)/sqrt(sims-f)
+      final[which(final$Models=="3" & final$Methods=="HE Reg"),"H2"] = mean(results$QnormGRMH, na.rm = T)
+      final[which(final$Models=="3" & final$Methods=="HE Reg"),"SE"] = sd(results$QnormGRMH, na.rm = T)/sqrt(sims-f)
+    }
+    
+    final$Models = factor(final$Models, levels = c( "1", "2", "3"),
+                          labels = c("Cox Frailty", "Case-Control Status", "RINT Age-of-Onset"))
+    final$Methods = factor(final$Methods, levels = c("REML", "HE Reg"))
+    main_plot = ggplot(final, aes(x=Methods, y=H2, ymin=H2-SE, ymax=H2+SE, fill = Models, pattern = Methods)) + 
+      geom_bar_pattern(position = position_dodge(1), color = "black", pattern_fill = "black", pattern_angle = 45, stat = 'identity', orientation = 'x',
+                       pattern_density = 0.1, pattern_spacing = 0.025, pattern_key_scale_factor = 0.6) + scale_fill_manual(values=methods_colors) +
+      scale_pattern_manual(values = c(REML = "none", `HE Reg` = "stripe")) + geom_errorbar(width=.2, position=position_dodge(1)) + guides(pattern = F) +
+      geom_hline(yintercept = h2) + ylab('Estimated Heritability') + ggtitle("Estimated Heritability by Method") + all_theme
+    
+    if(is.null(missing)){
+      missing = "There are no missing data points due to singularity"
+    } else{
+      missing = paste(missing,collapse='\n')
+    }
+    
+    text <- ggplot(data = data.frame(x = 1:2, y = 1:10)) +
+      labs(subtitle = missing) +
+      theme_void() +
+      theme(
+        plot.subtitle = ggtext::element_textbox_simple(
+          hjust = 0,
+          halign = 0,
+          margin = margin(20, 0, 0, 0)
+        ),
+        plot.margin = margin(0, 0, 0, 0)
+      )
+    
+    return(list('main'=main_plot, 'text'=text))
+  }
+  
   missing = NULL
   final = data.frame("Models" = rep(models,2), "Methods" = c(rep("REML", length(models)), rep("HE Reg", length(models))))
   if("1" %in% models){
@@ -246,8 +317,8 @@ plot_results = function(results, models, h2, sims, method = 'casecontrol'){
   final$Methods = factor(final$Methods, levels = c("REML", "HE Reg"))
   main_plot = ggplot(final, aes(x=Methods, y=H2, ymin=H2-SE, ymax=H2+SE, fill = Models, pattern = Methods)) + 
     geom_bar_pattern(position = position_dodge(1), color = "black", pattern_fill = "black", pattern_angle = 45, stat = 'identity', orientation = 'x',
-                                pattern_density = 0.1, pattern_spacing = 0.025, pattern_key_scale_factor = 0.6, show.legend = F) + scale_fill_manual(values=methods_colors) +
-    scale_pattern_manual(values = c(REML = "none", `HE Reg` = "stripe")) + geom_errorbar(width=.2, position=position_dodge(1)) +
+                                pattern_density = 0.1, pattern_spacing = 0.025, pattern_key_scale_factor = 0.6) + scale_fill_manual(values=methods_colors) +
+    scale_pattern_manual(values = c(REML = "none", `HE Reg` = "stripe")) + geom_errorbar(width=.2, position=position_dodge(1)) + guides(pattern = F) +
     geom_hline(yintercept = h2) + ylab('Estimated Heritability') + ggtitle("Estimated Heritability by Method") + all_theme
   
   if(is.null(missing)){
