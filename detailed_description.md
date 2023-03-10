@@ -3,4 +3,28 @@ title: "Age-of-Onset (Survival): Detailed Description"
 output: html_document
 ---
 
-TODO
+Let $A$, be the continuous age-of-onset for a disease measured for $N$ unrelated individuals. We assume age-of-onset is drawn from the parametric Weibull distribution with a fixed shape parameter, $k \in \{1,2,3\}$. These three shape parameters approximate an exponential, chi-squared and normal distribution, respectively. The slope parameter $l$ will reflect the continuous liability of developing the disease. The liability $l$ follows the standard normal distribution and is composed of two independent components, $l = l_g + l_e$.
+
+The genetic component, $l_g$, follows the Gaussian distribution:
+
+\begin{align}
+  l_g \sim N(0, h^2)
+\end{align}
+
+while the environmental component $l_e$ follows the Gaussian:
+
+\begin{align}
+  l_e \sim N(0, 1-h^2)
+\end{align}
+
+In both distributions, $h^2$ represents the additive SNP-heritability.
+
+We assume that everyone would eventually develop the disease (i.e. time $\rightarrow \infty$), but that within a finite time frame (e.g. before the age at interviewing), a subset of individuals will not develop the disease. These individuals will be considered censored. The censoring is such that the proportion of cases reflects an expected population prevalence of the disease $K$. We will use the dichotomous variable $Y$ to denote whether a person developed the disease ($y=1$) or was censored ($y=0$).
+
+For individuals who develop the disease $A$ represents their age-of-onset scaled to fall within the minimum and maximum age range. For individuals who are censored their age equals the maximum age.
+
+We note that instead of directly generating the genetic liability $l_g$ from the normal distribution (shown above), we observe the standardized genotype matrix $X$ containing $M$ independent SNPs. We assume that the minor allele frequency (MAF) $> 0.05$ or such that the minor allele count is 25, whichever is greater. We assume there are $C \subseteq M$ causal SNPs whose effect sizes, $\beta$ are drown according to the polygenic model:
+
+\begin{align}
+\beta \sim N(0, \frac{h^2}{M})
+\end{align}

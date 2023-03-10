@@ -353,7 +353,7 @@ display: none;
 </div>
 
 
-<pre class="r"><code>liab = function(N, M, h2, C, minOnset, maxOnset){
+<pre class="r"><code>liab = function(N, M, h2, C, minOnset, maxOnset, informative){
   MAF=0.05
   # helper function for genetics
   # returns genetic liability and GRM
@@ -366,7 +366,7 @@ display: none;
   l = l_g + l_e
 
   # helper function for setting age
-  age = setage_liability(N, minOnset, maxOnset)
+  age = setage_liability(N, minOnset, maxOnset, informative)
   
   return(list(&quot;Y&quot;=rep(1,N), &quot;age&quot;=age, &quot;liab&quot;=l, &quot;gen&quot;=l_g, &quot;GRM&quot;=gen$GRM, &quot;cuts&quot; = cuts))
   
