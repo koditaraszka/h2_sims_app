@@ -131,11 +131,11 @@ server <- function(input, output) {
         progress$set(message = "Generating Plots", value = 0)
         results = NULL
         isolate({
-            first = liab(input$liabN, input$liabM, input$liabH2, input$liabC/100, input$liabOnset[1], input$liabOnset[2])
+            first = liab(input$liabN, input$liabM, input$liabH2, input$liabC/100, input$liabOnset[1], input$liabOnset[2], input$liabInformative)
             detail = overview(first, "liab")
             for(i in 1:input$liabSims){
                 progress$inc(1/input$liabSims, detail = paste("Running Simulation", i))
-                x=liab(input$liabN, input$liabM, input$liabH2, input$liabC/100, input$liabOnset[1], input$liabOnset[2])
+                x=liab(input$liabN, input$liabM, input$liabH2, input$liabC/100, input$liabOnset[1], input$liabOnset[2], input$liabInformative)
                 results = rbind(results, runMethods(x, input$liabModels, 0, "liab"))
             }
             results = data.frame(results)

@@ -4,7 +4,7 @@ output: html_document
 ---
 
 ```{r, size = 'small'}
-liab = function(N, M, h2, C, minOnset, maxOnset){
+liab = function(N, M, h2, C, minOnset, maxOnset, informative){
   MAF=0.05
   # helper function for genetics
   # returns genetic liability and GRM
@@ -17,7 +17,7 @@ liab = function(N, M, h2, C, minOnset, maxOnset){
   l = l_g + l_e
 
   # helper function for setting age
-  age = setage_liability(N, minOnset, maxOnset)
+  age = setage_liability(N, minOnset, maxOnset, informative)
   
   return(list("Y"=rep(1,N), "age"=age, "liab"=l, "gen"=l_g, "GRM"=gen$GRM, "cuts" = cuts))
   
