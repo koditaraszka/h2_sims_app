@@ -149,7 +149,7 @@ setage_partialcc = function(data, select, minAge, maxAge, informative){
   
   age = rep(0, length(data$Y))
   age[real_controls] = round(cenAge, 1)
-  age[real_cases] = round(caseAge, 1)
+  age[real_cases] = round(onsetAge, 1)
   
   for(i in select){
     # since these people are unobserved, their age is < age of onset
