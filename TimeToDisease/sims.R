@@ -20,16 +20,27 @@ fluidPage(
                 ),
             ),
             fluidRow(
-                column(6,
-                    sliderInput("ageonsetH2",
-                        label = h4("SNP Heritability:"),
-                        min = 0, max = 1, value = 0.5
-                    )
+                column(12,
+                       sliderInput("ageonsetH2",
+                                   label = h4("SNP Heritability:"),
+                                   min = 0, max = 1, value = 0.5
+                       )
                 ),
+            ),
+            fluidRow(
                 column(6,
                     sliderInput("ageonsetK",
                         label = h4("Proportion of Cases:"),
                         min = 0, max = 1, value = 0.1
+                    )
+                ),
+                column(6,
+                    radioButtons("ageonsetP",
+                        label = h4("Sample Prevalence Cases:"),
+                        choices = list("Equals Population" = 1,
+                                       "50% of Sample" = 2
+                        ),
+                        selected = 1
                     )
                 )
             ),
