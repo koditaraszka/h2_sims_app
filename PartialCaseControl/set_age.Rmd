@@ -42,7 +42,7 @@ setage_partialcc = function(data, select, minAge, maxAge, informative){
   minMove= min(move)
   maxMove = max(move)
   
-  onsetAge = minOnset + ((move - minMove)/(maxMove - minMove))*(maxOnset-minOnset)
+  onsetAge = minAge + ((move - minMove)/(maxMove - minMove))*(maxAge-minAge)
   
   controls = length(real_controls)
   cenStd = (maxAge-minAge)/4
