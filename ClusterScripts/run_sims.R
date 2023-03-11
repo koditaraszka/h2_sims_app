@@ -63,9 +63,9 @@ results = subset(results, select = c(Model, H2, N, K, P, Tau,
                                      BinGRMR, LogGRMR, BoxCoxGRMR, QnormGRMR, 
                                      BinGRMH, LogGRMH, BoxCoxGRMH, QnormGRMH))
 if(Informative==1){
-    write.table(results, paste0("results_notinformative_", P, "_", Sims,".txt"), sep = '\t', row.names = F, col.names = F, append = T)
+    write.table(results, paste0("results_notinformative_", Sims, ".txt"), sep = '\t', row.names = F, col.names = F, append = T)
 } else{
-    write.table(results, paste0("results_informative_", P, "_", Sims,".txt"), sep = '\t', row.names = F, col.names = F, append = T)
+    write.table(results, paste0("results_informative_", Sims, ".txt"), sep = '\t', row.names = F, col.names = F, append = T)
 }
 
 #main_plot = plot_results(results, Models, H2, Sims)
