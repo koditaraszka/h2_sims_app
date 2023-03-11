@@ -62,18 +62,10 @@ results["P"] = P
 results = subset(results, select = c(Model, H2, N, K, P, Tau, 
                                      BinGRMR, LogGRMR, BoxCoxGRMR, QnormGRMR, 
                                      BinGRMH, LogGRMH, BoxCoxGRMH, QnormGRMH))
-if(Sims!=1){
-    if(Informative==1){
-        write.table(results, paste0("results_informative_",Sims,".txt"), sep = '\t', row.names = F, col.names = F)
-    } else{
-        write.table(results, paste0("results_informative_",Sims,".txt"), sep = '\t', row.names = F, col.names = F)
-    }
+if(Informative==1){
+    write.table(results, paste0("results_notinformative_", P, "_", Sims,".txt"), sep = '\t', row.names = F, col.names = F, append = T)
 } else{
-    if(Informative==1){
-        write.table(results, paste0("results_informative_",Sims,".txt"), sep = '\t', row.names = F, col.names = T)
-    } else{
-        write.table(results, paste0("results_informative_",Sims,".txt"), sep = '\t', row.names = F, col.names = T)
-    }   
+    write.table(results, paste0("results_informative_", P, "_", Sims,".txt"), sep = '\t', row.names = F, col.names = F, append = T)
 }
 
 #main_plot = plot_results(results, Models, H2, Sims)
