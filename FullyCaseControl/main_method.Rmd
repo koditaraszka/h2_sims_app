@@ -53,7 +53,7 @@ fullcc = function(N, M, h2, K, P, C, minCen, maxCen, minOnset, maxOnset, informa
   l = l[sort(c(keepCases, keepControls))]
   
   # helper function for setting age
-  data.frame('Y'=Y, 'liab'=l, 'K'=K)
+  data = data.frame('Y'=Y, 'liab'=l, 'K'=K)
   age = setage_fullcc(data, minCen, maxCen, minOnset, maxOnset, informative)
   
   return(list("Y"=Y, "age"=age, "liab"=l, "gen"=l_g, "GRM"=gen$GRM, "cuts"=cuts))

@@ -392,7 +392,7 @@ Age</h1>
   minMove= min(move)
   maxMove = max(move)
   
-  onsetAge = minOnset + ((move - minMove)/(maxMove - minMove))*(maxOnset-minOnset)
+  onsetAge = minAge + ((move - minMove)/(maxMove - minMove))*(maxAge-minAge)
   
   controls = length(real_controls)
   cenStd = (maxAge-minAge)/4
@@ -402,7 +402,7 @@ Age</h1>
     
   age = rep(0, length(data$Y))
   age[real_controls] = round(cenAge, 1)
-  age[real_cases] = round(caseAge, 1)
+  age[real_cases] = round(onsetAge, 1)
   
   for(i in select){
     # since these people are unobserved, their age is &lt; age of onset
