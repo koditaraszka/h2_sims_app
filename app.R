@@ -131,16 +131,16 @@ server <- function(input, output) {
         progress$set(message = "Generating Plots", value = 0)
         results = NULL
         isolate({
-            first = liab(input$liabN, input$liabM, input$liabH2, input$liabC/100, input$liabOnset[1], input$liabOnset[2], input$liabInformative)
+            first = liab(input$liabN, input$liabM, input$liabH2, input$liabC, input$liabAgeDist, input$liabOnset[1], input$liabOnset[2], input$liabCenRate, input$liabCenDist, input$liabInfo)
             detail = overview(first, "liab")
             for(i in 1:input$liabSims){
                 progress$inc(1/input$liabSims, detail = paste("Running Simulation", i))
-                x=liab(input$liabN, input$liabM, input$liabH2, input$liabC/100, input$liabOnset[1], input$liabOnset[2], input$liabInformative)
-                results = rbind(results, runMethods(x, input$liabModels, 0, "liab"))
+                x=liab(input$liabN, input$liabM, input$liabH2, input$liabC, input$liabAgeDist, input$liabOnset[1], input$liabOnset[2], input$liabCenRate, input$liabCenDist, input$liabInfo)
+                results = rbind(results, runMethods(x, input$liabModels, (1-input$liabCenRate), "liab"))
             }
             results = data.frame(results)
             colnames(results) = c("Tau", "BinGRMR", "LogGRMR", "BoxCoxGRMR", "QnormGRMR", "BinGRMH", "LogGRMH", "BoxCoxGRMH", "QnormGRMH")
-            main_plot = plot_results(results, input$liabModels, input$liabH2, input$liabSims, "liab")
+            main_plot = plot_results(results, input$liabModels, input$liabH2, input$liabSims)
         })
         
         topdesign="

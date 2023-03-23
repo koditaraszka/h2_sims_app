@@ -11,7 +11,7 @@
 
 
 
-<title>Continuous Liability: Main Method</title>
+<title>Binary Search</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -348,51 +348,42 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Continuous Liability: Main Method</h1>
+<h1 class="title toc-ignore">Binary Search</h1>
 
 </div>
 
 
-<pre class="r"><code># Simulate under continuous liability model where everyone is a case
-# Age-of-onset is set based on user input
-# controls only due to censoring
-# Age-of-censoring has same variance as age-of-onset
-# Age-of-censoring is then mean shifted to return correct censoring rate
-# Returns: case-control status, age, liabiliity, genetic liability, GRM,  genetic liability deciles
+<pre class="r"><code># Binary Search for mean shift for censoring age
+# Such that the censoring rate is +/- 0.01 cenRate
 
 ## Variables:
 ## N: number of individuals
-## M: number of SNPs
-## h2: SNP heritability
-## C: proportion of causal SNPs
-## ageDist: distribution for age-of-onset/censoring (1==logistic; 2==Gaussian)
-## minOnset: min age-of-onset
-## maxOnset: max age-of-onset
-## cenRate: proportion of individuals censored
-## info: liability informs age-of-onset (1==no, 2==yes)
+## ageOnset: age-of-onset for everyone
+## ageCensor: age-at-censoring for everyone
+## cenRate: rate of censoring needed
 
-liab = function(N, M, h2, C, ageDist, minOnset, maxOnset, cenRate, info){
-
-  MAF=0.05
-  # helper function for genetic liability
-  # returns: genetic liability and GRM
-  gen = gen_liab(N, M, C, h2, MAF)
-
-  l_g = gen$liab
-  cuts = quantile(l_g,probs = seq(0.1, 0.9, 0.1))
+binSearch = function(N, ageOnset, ageCensor, cenRate){
+  # tolerance for observed censoring rate
+  tol = 0.01
   
-  l_e = sqrt(1-h2)*scale(rnorm(N, 0, 1))
-  l = l_g + l_e
-
-  # helper function which returns age-of-onset and age-at-censoring
-  age = setage_liability(N, l, ageDist, minOnset, maxOnset, cenRate, info)
-
-  # indicator (Y=1 age-of-onset observed, Y=0, age-of-onset is censored)
-  Y = as.numeric(age$onset&lt;=age$censor)
-  age &lt;- pmin(age$onset, age$censor)
-
-  return(list(&quot;Y&quot;=Y, &quot;age&quot;=age, &quot;liab&quot;=l, &quot;gen&quot;=l_g, &quot;GRM&quot;=gen$GRM, &quot;cuts&quot; = cuts))
+  minV = 0
+  maxV = 1
+  # starting at best guess not 0.5
+  value = 1 - cenRate
   
+  shifted = ageCensor + qnorm(value)
+  rate = length(which(ageOnset &gt;= shifted))/N
+  while(!(cenRate - tol &lt;= rate &amp; cenRate + tol &gt;= rate)){
+    if(rate &lt; cenRate){
+      maxV = value
+    } else{
+      minV = value
+    }
+    value = (minV+maxV)/2
+    shifted = ageCensor + qnorm(value)
+    rate = length(which(ageOnset &gt;= shifted))/N
+  }
+  return(shifted)
 }</code></pre>
 
 

@@ -1,4 +1,5 @@
 rmarkdown::render("genetic_liability.Rmd")
+rmarkdown::render("binSearch.Rmd")
 rmarkdown::render("FullyCaseControl/main_method.Rmd")
 rmarkdown::render("FullyCaseControl/set_age.Rmd")
 rmarkdown::render("LiabilityOnly/main_method.Rmd")
@@ -29,26 +30,10 @@ runMethods_reml = function(data, models, k, method){
   logGRM = NA
   boxcoxGRM = NA
   qnormGRM = NA
-    
-  if(method == 'liab'){
-    # time-to-event
-    if("1" %in% models){
-      tau = coxmeg(cbind(data$liab, data$Y), corr = data$GRM, spd = F, type = 'dense', solver = 'NM', verbose = F)$tau
-    }
-    
-    # case-control status
-    if("2" %in% models){
-      binGRM = aiML(list(data$GRM), data$liab, c(0.5,0.5), verbose = F)$h2
-    }
-      
-    # quantile normalized
-    if("3" %in% models){
-      qnorm_y = qnorm(rank(data$liab, ties.method = "random")/(length(data$liab)+1))
-      qnormGRM = aiML(list(data$GRM), qnorm_y, c(0.5,0.5), verbose = F)$h2
-    }
-    return(c(tau, binGRM, logGRM, boxcoxGRM, qnormGRM))
-  }
-
+  
+  # onset split from casecontrol/liability in case no correction
+  # currently everything has a correction
+  
   #coxmeg
   if(method=='ageonset'){
     
@@ -91,8 +76,6 @@ runMethods_reml = function(data, models, k, method){
       qnormGRM = 4*qnormGRM/(1+qnormGRM)
     }
   
-    return(c(tau, binGRM, logGRM, boxcoxGRM, qnormGRM)) 
-    
   }
   
   if(method=='casecontrol'){
@@ -121,6 +104,47 @@ runMethods_reml = function(data, models, k, method){
         boxcox_y = log(age)
       }
       boxcoxGRM = aiML(list(data$GRM), scale(boxcox_y, center = T), c(0.5,0.5), verbose = F)$h2
+      boxcoxGRM = 4*boxcoxGRM/(1+boxcoxGRM)
+    }
+    
+    if("4" %in% models){
+      log_y = log(age)
+      logGRM = aiML(list(data$GRM), scale(log_y, center = T), c(0.5,0.5), verbose = F)$h2
+      logGRM = 4*logGRM/(1+logGRM)
+    }
+    
+    if("5" %in% models){
+      qnorm_y = qnorm(rank(age, ties.method = "random")/(length(age)+1))
+      qnormGRM = aiML(list(data$GRM), qnorm_y, c(0.5,0.5), verbose = F)$h2
+      qnormGRM = 4*qnormGRM/(1+qnormGRM)
+    }
+    
+  }
+   
+  if(method=='liab'){
+    
+    if("1" %in% models){
+      tau = coxmeg(cbind(data$age, data$Y), corr = data$GRM, spd = F, type = 'dense', solver = 'NM', verbose = F)$tau
+    }
+    
+    # case-control status
+    if("2" %in% models){
+      binGRM = aiML(list(data$GRM), data$Y, c(0.5,0.5), verbose = F)$h2
+    }
+    
+    #cases-only
+    samples = sort(which(data$Y==1))
+    age = data$age[samples]
+    data$GRM = data$GRM[samples, samples]
+    
+    if("3" %in% models){
+      bc = MASS::boxcox(lm(age ~ 1,x = TRUE, y = TRUE), plotit =F)
+      lambda <- bc$x[which.max(bc$y)]
+      boxcox_y = (age ^ lambda - 1) / lambda
+      if(lambda==0){
+        boxcox_y = log(age)
+      }
+      boxcoxGRM = aiML(list(data$GRM), scale(boxcox_y, center = T), c(0.5,0.5), verbose = F)$h2
     }
     
     if("4" %in% models){
@@ -133,9 +157,9 @@ runMethods_reml = function(data, models, k, method){
       qnormGRM = aiML(list(data$GRM), qnorm_y, c(0.5,0.5), verbose = F)$h2
     }
     
-    return(c(tau, binGRM, logGRM, boxcoxGRM, qnormGRM)) 
+  } 
+  return(c(tau, binGRM, logGRM, boxcoxGRM, qnormGRM)) 
     
-  }
 }
 
 runMethods_hereg = function(data, models, k, method){
@@ -145,27 +169,51 @@ runMethods_hereg = function(data, models, k, method){
   boxcoxGRM = NA
   qnormGRM = NA
   
-  GRM=NA
-  if(method=='liab'){
-    GRM = data$GRM[upper.tri(data$GRM)]
-    
+  # onset split from casecontrol/liability in case no correction
+  # currently everything has a correction
+  if(method=='ageonset'){
     # case-control status
     if("2" %in% models){
-      pp=scale(data$liab) %*% t(scale(data$liab))
-      binGRM = summary(lm(pp[upper.tri(pp)] ~ GRM))$coef[2,1]
+      GRM2 = obs2lia(data$GRM, k, length(which(data$Y==1))/length(data$Y), T)
+      GRM2 = GRM2[upper.tri(GRM2)]
+      pp=scale(data$Y) %*% t(scale(data$Y))
+      binGRM = summary(lm(pp[upper.tri(pp)] ~ GRM2))$coef[2,1]
     }
-    
+  
+    #cases-only
+    samples = sort(which(data$Y==1))
+    age = data$age[samples]
+    data$GRM = data$GRM[samples, samples]
+    GRM = data$GRM[upper.tri(data$GRM)]
+
     if("3" %in% models){
-      qnorm_y = qnorm(rank(data$liab, ties.method = "random")/(length(data$liab)+1))
+      bc = MASS::boxcox(lm(age ~ 1,x = TRUE, y = TRUE), plotit =F)
+      lambda <- bc$x[which.max(bc$y)]
+      boxcox_y = (age ^ lambda - 1) / lambda
+      if(lambda==0){
+        boxcox_y = log(age)
+      }
+      pp=scale(boxcox_y) %*% t(scale(boxcox_y))
+      boxcoxGRM = summary(lm(pp[upper.tri(pp)] ~ GRM))$coef[2,1]
+      boxcoxGRM = 4*boxcoxGRM/(1+boxcoxGRM)
+    }
+  
+    if("4" %in% models){
+      log_y = log(age)
+      pp=scale(log_y) %*% t(scale(log_y))
+      logGRM = summary(lm(pp[upper.tri(pp)] ~ GRM))$coef[2,1]
+      logGRM = 4*logGRM/(1+logGRM)
+    }
+  
+    if("5" %in% models){
+      qnorm_y = qnorm(rank(age, ties.method = "random")/(length(age)+1))
       pp=qnorm_y %*% t(qnorm_y)
       qnormGRM = summary(lm(pp[upper.tri(pp)] ~ GRM))$coef[2,1]
+      qnormGRM = 4*qnormGRM/(1+qnormGRM)
     }
-    
-    return(c(binGRM, logGRM, boxcoxGRM, qnormGRM))
   }
   
-  if(method=='ageonset' | method == 'casecontrol'){
-  
+  if(method=='casecontrol'){
     # case-control status
     if("2" %in% models){
       GRM2 = obs2lia(data$GRM, k, length(which(data$Y==1))/length(data$Y), T)
@@ -205,9 +253,46 @@ runMethods_hereg = function(data, models, k, method){
       qnormGRM = summary(lm(pp[upper.tri(pp)] ~ GRM))$coef[2,1]
       qnormGRM = 4*qnormGRM/(1+qnormGRM)
     }
-  
-    return(c(binGRM, logGRM, boxcoxGRM, qnormGRM))
   }
+  
+  if(method=='liab'){
+    # case-control status
+    if("2" %in% models){
+      GRM2 = data$GRM[upper.tri(data$GRM)]
+      pp=scale(data$Y) %*% t(scale(data$Y))
+      binGRM = summary(lm(pp[upper.tri(pp)] ~ GRM2))$coef[2,1]
+    }
+    
+    #cases-only
+    samples = sort(which(data$Y==1))
+    age = data$age[samples]
+    data$GRM = data$GRM[samples, samples]
+    GRM = data$GRM[upper.tri(data$GRM)]
+    
+    if("3" %in% models){
+      bc = MASS::boxcox(lm(age ~ 1,x = TRUE, y = TRUE), plotit =F)
+      lambda <- bc$x[which.max(bc$y)]
+      boxcox_y = (age ^ lambda - 1) / lambda
+      if(lambda==0){
+        boxcox_y = log(age)
+      }
+      pp=scale(boxcox_y) %*% t(scale(boxcox_y))
+      boxcoxGRM = summary(lm(pp[upper.tri(pp)] ~ GRM))$coef[2,1]
+    }
+    
+    if("4" %in% models){
+      log_y = log(age)
+      pp=scale(log_y) %*% t(scale(log_y))
+      logGRM = summary(lm(pp[upper.tri(pp)] ~ GRM))$coef[2,1]
+    }
+    
+    if("5" %in% models){
+      qnorm_y = qnorm(rank(age, ties.method = "random")/(length(age)+1))
+      pp=qnorm_y %*% t(qnorm_y)
+      qnormGRM = summary(lm(pp[upper.tri(pp)] ~ GRM))$coef[2,1]
+    }
+  }
+  return(c(binGRM, logGRM, boxcoxGRM, qnormGRM))
 }
 
 runMethods = function(data, models, k, method){

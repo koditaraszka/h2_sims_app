@@ -31,6 +31,11 @@ fluidRow(
                 column(width=12,
                     h5(HTML(mark_html(knit("genetic_liability.Rmd", quiet = T))))
                 )
+            ),
+            tabPanel(h4("Binary Search"),
+                     column(width=12,
+                            h5(HTML(mark_html(knit("binSearch.Rmd", quiet = T))))
+                     )
             )
         )
     )

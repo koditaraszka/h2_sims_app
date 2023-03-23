@@ -11,7 +11,7 @@
 
 
 
-<title>Fully Observed Case-Control: Set Age</title>
+<title>Continuous Liability: Set Age</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -348,34 +348,75 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Fully Observed Case-Control: Set Age</h1>
+<h1 class="title toc-ignore">Continuous Liability: Set Age</h1>
 
 </div>
 
 
-<pre class="r"><code>setage_liability = function(N, liability, minOnset, maxOnset, informative){
-  
-   if(informative==1){
-  
-    # set age for cases
-    onsetStd = (maxOnset-minOnset)/4
-    onsetMean = mean(c(minOnset, maxOnset))
-    ageQuants = runif(N, 0.025, 0.975)
-    onsetAge = qnorm(ageQuants, onsetMean, onsetStd)
-    return(round(onsetAge, 1))
-  
-  }
-    
-  # set age for cases
-  p_liab = stats::pnorm(liability, lower.tail = F)
-  move = -1*log(1/p_liab - 1)
-    
-  minMove= min(move)
-  maxMove = max(move)
-  
-  onsetAge = minOnset + ((move - minMove)/(maxMove - minMove))*(maxOnset-minOnset)
-  return(round(onsetAge, 1))
+<pre class="r"><code># Set age-of-onset and age-at-censoring
+# Age-of-onset is set based on user input
+# controls only due to censoring
+# Age-of-censoring has same variance as age-of-onset
+# Age-of-censoring is then mean shifted to return correct censoring rate
+# Returns: age-of-onset and age-at-censoring
 
+## Variables:
+## N: number of individuals
+## liability: continuous liability 
+## ageDist: distribution for age-of-onset/censoring (1==logistic; 2==Gaussian)
+## minOnset: min age-of-onset
+## maxOnset: max age-of-onset
+## cenRate: proportion of individuals censored
+## info: liability informs age-of-onset (1==no, 2==yes)
+
+setage_liability = function(N, liability, ageDist, minOnset, maxOnset, cenRate, info){
+  
+  # Uninformative
+  if(info==1){
+    # reset liability to be random
+    liability = rnorm(N)
+  }  
+
+  # logistic age-of-onset
+  if(ageDist==1){
+    p_liab = stats::pnorm(liability, lower.tail = F)
+    move = -1*log(1/p_liab - 1)
+  } 
+  
+  # Gaussian age-of-onset
+  if(ageDist==2){
+    move = -1*liability
+  }
+  
+  minMove = min(move)
+  maxMove = max(move)
+  ageOnset = minOnset + ((move - minMove)/(maxMove - minMove))*(maxOnset - minOnset)
+  
+  cenAge = rep(Inf, N)
+  if(cenRate&gt;0){
+
+    #pseudo-liability for censoring
+    cenLiab = rnorm(N)
+    
+    # logistic age-of-censoring
+    if(ageDist==1){
+      p_liab = stats::pnorm(cenLiab, lower.tail = F)
+      censor = -1*log(1/p_liab - 1)
+    } 
+
+    # Gaussian age-of-onset
+    if(ageDist==2){
+      censor = -1*cenLiab
+    }
+  
+    cenAge = minOnset + ((censor - minMove)/(maxMove - minMove))*(maxOnset - minOnset)
+    
+    # helper function to choose mean shift to censor  +/- 0.01 of cenRate
+    cenAge = binSearch(N, ageOnset, cenAge, cenRate)
+    
+  }
+  
+  return(list(&quot;onset&quot;=ageOnset, &quot;censor&quot;=cenAge))
 }</code></pre>
 
 

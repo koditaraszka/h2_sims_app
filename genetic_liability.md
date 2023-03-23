@@ -5,9 +5,18 @@ runtime: shiny
 
 
 ```r
+# Simulate the genetic information
+
+## Variables:
+## N: number of individuals
+## M: number of SNPs
+## C: proportion of causal SNPs
+## h2: heritability
+## MAF: minor allele frequency
+
 gen_liab = function(N, M, C, h2, MAF){
   
-  # set allele frequeny uniformly
+  # set allele frequency uniformly
   aFreq = runif(M, min=MAF, max=(1-MAF))
   G = matrix(NA,nrow=N,ncol=M)
   for(m in 1:M){
@@ -22,9 +31,9 @@ gen_liab = function(N, M, C, h2, MAF){
   causal = sample(1:M, C*M)
   # causal SNPs beta normally distributed
   beta[causal] = rnorm(C*M,0,1)
+  
   # var(xb) = h2
   xb = sqrt(h2)*scale(X %*% beta)
   return(list("liab"=xb, "GRM"=GRM))
-  
 }
 ```

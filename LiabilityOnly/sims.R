@@ -1,3 +1,4 @@
+#Variables: liabSims, liabN, liabM, liabH2, liabC, liabAgeDist, liabOnset, liabCenRate, liabCenDist, liabModels, liabInfo, liabRun
 fluidPage(
     titlePanel("Continuous Liability"),
     fluidRow(
@@ -8,64 +9,87 @@ fluidPage(
             fluidRow(
                 column(6,
                     numericInput("liabSims", 
-                        label = h4("Number of Runs:"), 
+                        label = h4("Runs:"), 
                         value = 10, step=1,min=1, max=100
                     )
                 ),
                 column(6,
                     numericInput("liabN",
-                        label = h4("Sample Size:"),
+                        label = h4("Sample size:"),
                         value = 2000, step=100, min=100, max=5000
                     )
-                ),
+                )
             ),
+            br(),
             fluidRow(
                 column(6,
                     sliderInput("liabH2",
-                        label = h4("SNP Heritability:"),
+                        label = h4("SNP H2:"),
                         min = 0, max = 1, value = 0.5
                     )
                 ),
                 column(6,
+                    sliderInput("liabC",
+                        label = h4("Causal SNPs:"),
+                        min = 0, max = 1, value = 1
+                    )
+                )
+            ),
+            br(),
+            fluidRow(
+                column(6,
+                    sliderInput("liabCenRate", 
+                        label = h4("Censoring rate:"),
+                        min = 0, max = 1, value = 0
+                    )
+                ),
+                column(6,
+                    numericInput("liabM", 
+                        label = h4("SNPs:"),
+                        value = 1000, step=100, min=100, max=5000
+                    )
+                )
+            ),
+            br(),
+            fluidRow(
+                column(7,
+                    radioButtons("liabAgeDist", 
+                        label = h4("Age-of-onset distribution:"),
+                        choices = list("logistic function" = 1,
+                                       "truncated Gaussian" = 2
+                        ),
+                        selected = 1
+                    )
+                ),
+                column(5,
                     sliderInput("liabOnset", 
                         label = h4("Onset age range:"),
                         min = 0, max = 100, value = c(18, 40)
                     )
                 )
             ),
+            br(),
             fluidRow(
-                column(4,
-                    numericInput("liabM", 
-                        label = h4("Number of SNPs:"),
-                        value = 1000, step=100, min=100, max=5000
+                column(6,
+                    checkboxGroupInput("liabModels", 
+                        label = h4("Models:"),
+                        choices = list("Cox Frailty" = 1,
+                                       "Case-Control" = 2,
+                                       "BoxCox Age-of-onset" = 3,
+                                       "Log Age-of-Onset" = 4,
+                                       "RINT Age-of-Onset" = 5
+                        ),
+                        selected = c(1,2,3,4,5)
                     )
                 ),
-                column(8,
-                    sliderInput("liabC",
-                        label = h4("Causal SNPs (%):"),
-                        min = 0, max = 100, value = 100
+                column(6,
+                    radioButtons("liabInfo", 
+                        label = h4("Liability is:"),
+                        choices = list("uninformative of age-of-onset" = 1,
+                                       "informative of age-of-onset" = 2
+                        ),
+                        selected = 2
                     )
-                )
-            ),
-            fluidRow(
-                column(8,
-                       checkboxGroupInput("liabModels", 
-                                          label = h4("Models to compare:"),
-                                          choices = list("Cox Frailty" = 1,
-                                                         "Case-Control" = 2,
-                                                         "RINT Age-of-Onset" = 3
-                                          ),
-                                          selected = c(1,2,3,4,5)
-                       )
-                ),
-                column(4,
-                       radioButtons("liabInformative", 
-                                    label = h4("Age of Onset:"),
-                                    choices = list("Uninformative of Liability" = 1,
-                                                   "Informative of Liability" = 2
-                                    ),
-                                    selected = 1
-                       )
                 )
             ),
             br(),

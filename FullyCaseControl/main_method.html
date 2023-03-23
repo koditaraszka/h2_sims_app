@@ -403,7 +403,7 @@ Method</h1>
   l = l[sort(c(keepCases, keepControls))]
   
   # helper function for setting age
-  data.frame(&#39;Y&#39;=Y, &#39;liab&#39;=l, &#39;K&#39;=K)
+  data = data.frame(&#39;Y&#39;=Y, &#39;liab&#39;=l, &#39;K&#39;=K)
   age = setage_fullcc(data, minCen, maxCen, minOnset, maxOnset, informative)
   
   return(list(&quot;Y&quot;=Y, &quot;age&quot;=age, &quot;liab&quot;=l, &quot;gen&quot;=l_g, &quot;GRM&quot;=gen$GRM, &quot;cuts&quot;=cuts))

@@ -9,3 +9,7 @@ We will assume everyone is a case and that there are two possible models their a
 1. age-of-onset follows a truncated Gaussian distribution with the truncation occurring at $\Phi^{-1}(0.025)$ and $\Phi^{-1}(0.975)$ quantiles.
   
 2. age-of-onset follows a logistic function based on the liability
+
+We can allow a subset of individuals to be censored before their age-of-onset (i.e are controls)
+
+The assumed distribution of age-at-censoring will follow the same distribution as age-of-onset but be mean shifted such that the censoring rate is maintained

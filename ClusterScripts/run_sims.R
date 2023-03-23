@@ -11,13 +11,13 @@ source("h2_shinyapp/ClusterScripts/methods.R")
 args = commandArgs(trailingOnly=TRUE)
 
 Sims = as.numeric(args[1])
-N=as.numeric(args[2]) #N in 500, 2500, 5000
-H2=as.numeric(args[3]) # 0.2, 0.8
-K=as.numeric(args[4]) # 0.01, 0.1, 0.4
-P=as.numeric(args[5]) # 1, 2
-Informative=as.numeric(args[6]) # 1, 2
+H2=as.numeric(args[2]) # 0.2, 0.8
+K=as.numeric(args[3]) # 0.01, 0.1, 0.4
+P=as.numeric(args[4]) # 1, 2
+Informative=as.numeric(args[5]) # 1, 2
 
-M=500
+N=2500
+M=1000
 C=100
 Onset = c(20,40)
 Cen = c(45, 65)
