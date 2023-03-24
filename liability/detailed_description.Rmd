@@ -1,0 +1,39 @@
+---
+title: "Continuous Liability: Detailed Description"
+output: html_document
+---
+
+Let $l$ be a continuous phenotype measured for $N$ unrelated individuals. This phenotype can be thought of as the continuous liability of developing a disease with carrier status occurring when the liability exceeds a threshold $T$, $l \ge T$. The liability follows the standard normal distribution and is composed of two independent components, $l = l_g + l_e$.
+
+The genetic component, $l_g$, follows the Gaussian distribution:
+
+\begin{align}
+  l_g \sim N(0, h^2)
+\end{align}
+
+while the environmental component $l_e$ follows the Gaussian:
+
+\begin{align}
+  l_e \sim N(0, 1-h^2)
+\end{align}
+
+In both distributions, $h^2$ represents the additive SNP-heritability. 
+
+For simplicity, we assume everyone develops the disease and therefore exceeds the liability threshold. This assumption is relaxed in *Fully Observed Case-Control Status* and *Partially Observed Case-Control Status*. 
+
+We further assume that only the liability of developing the disease is heritable; therefore, the age-of-onset, $A$, is drawn from truncated Gaussian with the minimum and maximum age representing the quantiles: $\Phi^{-1}(0.025)$ and $\Phi^{-1}(0.975)$, respectively. 
+
+We relax this assumption and instead draw the age-of-onset, $A$, from a logistic function of the liability, $l$:
+
+\begin{align}
+-ln(\frac{1}{(1-\Phi(l))} - 1)
+\end{align}
+
+The distribution is then scaled such that the age-of-onsets falls within the minimum and maximum age.
+
+We note that instead of directly generating the genetic liability $l_g$ from the normal distribution (shown above), we observe the standardized genotype matrix $X$ containing $M$ independent SNPs. We assume that the minor allele frequency (MAF) $> 0.05$ or such that the minor allele count is 25, whichever is greater. We assume there are $C \subseteq M$ causal SNPs whose effect sizes, $\beta$ are drown according to the polygenic model:
+
+\begin{align}
+\beta \sim N(0, \frac{h^2}{M})
+\end{align}
+

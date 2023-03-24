@@ -18,10 +18,10 @@ ui = div(style =
             collapsible = TRUE,
             navbarMenu("About",
                 tabPanel("Introduction to the App",
-                    source("About/about_app.R")$value
+                    source("about/about_app.R")$value
                 ),
                 tabPanel("Introduction to the Problem",
-                    source("About/about_problem.R")$value
+                    source("about/about_problem.R")$value
                 )#,
                 #tabPanel("Introduction to the Authors",
                 #    source("About/about_intro.R")$value
@@ -30,37 +30,25 @@ ui = div(style =
             ),
             navbarMenu("Overview of the Generative Models",
                 tabPanel("Continous Liability",
-                    source("LiabilityOnly/overview.R")$value
+                    source("liability/overview.R")$value
                 ),
-                tabPanel("Fully Observed Case-Control Status",
-                    source("FullyCaseControl/overview.R")$value
-                ),
-                tabPanel("Partially Observed Case-Control Status",
-                    source("PartialCaseControl/overview.R")$value
+                tabPanel("Case-Control Status",
+                    source("caseControl/overview.R")$value
                 ),
                 tabPanel("Age-of-Onset (Survival)",
-                    source("TimeToDisease/overview.R")$value
-                )#,
-                #tabPanel("Conditional Time-to-Disease (Survival) Simulations",
-                #    source("basic_sims.R")$value
-                #)
+                    source("ageOnset/overview.R")$value
+                )
             ),
             navbarMenu("Run Simulations",
                 tabPanel("Continuous Liability Simulations",
-                    source("LiabilityOnly/sims.R")$value
+                    source("liability/sims.R")$value
                 ),
-                tabPanel("Fully Observed Case-Control Simulations",
-                    source("FullyCaseControl/sims.R")$value
-                ),
-                tabPanel("Partially Observed Case-Control Simulations",
-                    source("PartialCaseControl/sims.R")$value
+                tabPanel("Case-Control Status Simulations",
+                    source("caseControl/sims.R")$value
                 ),
                 tabPanel("Age-of-Onset (Survival) Simulations",
-                    source("TimeToDisease/sims.R")$value
-                )#,
-                #tabPanel("Conditional Time-to-Disease (Survival) Simulations",
-                #    source("basic_sims.R")$value
-                #)
+                    source("ageOnset/sims.R")$value
+                )
             )
         )
     )   
@@ -68,12 +56,12 @@ ui = div(style =
 server <- function(input, output) {
     
     #fully observed case-control
-    output$fullccPlots <- renderPlot({
+    output$ccPlots <- renderPlot({
         
-        if (input$fullccRun == 0)
+        if (input$ccRun == 0)
             return()
         
-        input$fullccRun
+        input$ccRun
         
         progress <- shiny::Progress$new()
         # Make sure it closes when we exit this reactive, even if there's an error
@@ -82,16 +70,18 @@ server <- function(input, output) {
         progress$set(message = "Generating Plots", value = 0)
         results = NULL
         isolate({
-            first = fullcc(input$fullccN, input$fullccM, input$fullccH2, input$fullccK, input$fullccP, input$fullccC/100, input$fullccCen[1], input$fullccCen[2], input$fullccOnset[1], input$fullccOnset[2], input$fullccInformative)
+            first = casecontrol(input$ccN, input$ccM, input$ccH2, input$ccC, input$ccChoice, input$ccK, input$ccP, input$ccAgeDist, 
+                                input$ccOnset[1], input$ccOnset[2], input$ccUnobs, input$ccCen[1], input$ccCen[2], input$ccInfo)
             detail = overview(first)
-            for(i in 1:input$fullccSims){
-                progress$inc(1/input$fullccSims, detail = paste("Running Simulation", i))
-                x=fullcc(input$fullccN, input$fullccM, input$fullccH2, input$fullccK, input$fullccP, input$fullccC/100, input$fullccCen[1], input$fullccCen[2], input$fullccOnset[1], input$fullccOnset[2], input$fullccInformative)
-                results = rbind(results, runMethods(x, input$fullccModels, input$fullccK, "casecontrol"))
+            for(i in 1:input$ccSims){
+                progress$inc(1/input$ccSims, detail = paste("Running Simulation", i))
+                x=casecontrol(input$ccN, input$ccM, input$ccH2, input$ccC, input$ccChoice, input$ccK, input$ccP, input$ccAgeDist, 
+                               input$ccOnset[1], input$ccOnset[2], input$ccUnobs, input$ccCen[1], input$ccCen[2], input$ccInfo)
+                results = rbind(results, runMethods(x, input$ccModels, input$ccK, "casecontrol"))
             }
             results = data.frame(results)
             colnames(results) = c("Tau", "BinGRMR", "LogGRMR", "BoxCoxGRMR", "QnormGRMR", "BinGRMH", "LogGRMH", "BoxCoxGRMH", "QnormGRMH")
-            main_plot = plot_results(results, input$fullccModels, input$fullccH2, input$fullccSims)
+            main_plot = plot_results(results, input$ccModels, input$ccH2, input$ccSims)
         })
         topdesign="
             123
@@ -131,11 +121,11 @@ server <- function(input, output) {
         progress$set(message = "Generating Plots", value = 0)
         results = NULL
         isolate({
-            first = liab(input$liabN, input$liabM, input$liabH2, input$liabC, input$liabAgeDist, input$liabOnset[1], input$liabOnset[2], input$liabCenRate, input$liabCenDist, input$liabInfo)
+            first = liability(input$liabN, input$liabM, input$liabH2, input$liabC, input$liabAgeDist, input$liabOnset[1], input$liabOnset[2], input$liabCenRate, input$liabCenDist, input$liabInfo)
             detail = overview(first, "liab")
             for(i in 1:input$liabSims){
                 progress$inc(1/input$liabSims, detail = paste("Running Simulation", i))
-                x=liab(input$liabN, input$liabM, input$liabH2, input$liabC, input$liabAgeDist, input$liabOnset[1], input$liabOnset[2], input$liabCenRate, input$liabCenDist, input$liabInfo)
+                x=liability(input$liabN, input$liabM, input$liabH2, input$liabC, input$liabAgeDist, input$liabOnset[1], input$liabOnset[2], input$liabCenRate, input$liabCenDist, input$liabInfo)
                 results = rbind(results, runMethods(x, input$liabModels, (1-input$liabCenRate), "liab"))
             }
             results = data.frame(results)
@@ -217,56 +207,7 @@ server <- function(input, output) {
         bottom = (main_plot$main + theme(legend.position = "bottom") + main_plot$text) + plot_layout(design=bottomdesign)
         top/bottom + plot_layout(design = design)
     })
-    
-    output$partccPlots <- renderPlot({
-        
-        if (input$partccRun == 0)
-            return()
-        
-        input$partccRun
-        
-        progress <- shiny::Progress$new()
-        # Make sure it closes when we exit this reactive, even if there's an error
-        on.exit(progress$close())
-        
-        progress$set(message = "Generating Plots", value = 0)
-        results = NULL
-        isolate({
-            first = partcc(input$partccN, input$partccM, input$partccH2, input$partccK, input$partccP, input$partccC/100, input$partccAge[1], input$partccAge[2], input$partccUnobs, input$partccInformative)
-            detail = overview(first)
-            for(i in 1:input$partccSims){
-                progress$inc(1/input$partccSims, detail = paste("Running Simulation", i))
-                x=partcc(input$partccN, input$partccM, input$partccH2, input$partccK, input$partccP, input$partccC/100, input$partccAge[1], input$partccAge[2], input$partccUnobs, input$partccInformative)
-                results = rbind(results, runMethods(x, input$partccModels, input$partccK, "casecontrol"))
-            }
-            results = data.frame(results)
-            colnames(results) = c("Tau", "BinGRMR", "LogGRMR", "BoxCoxGRMR", "QnormGRMR", "BinGRMH", "LogGRMH", "BoxCoxGRMH", "QnormGRMH")
-            main_plot = plot_results(results, input$partccModels, input$partccH2, input$partccSims)
-        })
-        
-        topdesign="
-            123
-        "
-        bottomdesign="
-            111
-            111
-            111
-            111
-            222
-        "
-        design = "
-            111
-            111
-            222
-            222
-            222
-            222
-        "
-        
-        top = (detail$risk + detail$incidence + detail$ageDist) + plot_layout(guides = 'collect', design=topdesign) 
-        bottom = (main_plot$main + theme(legend.position = "bottom") + main_plot$text) + plot_layout(design=bottomdesign)
-        top/bottom + plot_layout(design = design)
-    })
+
 }
 
 # Run the application

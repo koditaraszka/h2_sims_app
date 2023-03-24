@@ -113,6 +113,7 @@ overview = function(first, method = 'casecontrol'){
   
 }
 
+# final bar graph
 plot_results = function(results, models, h2, sims){
   
   missing = NULL

@@ -1,0 +1,75 @@
+---
+title: "Case-Control: Set Age"
+output: html_document
+---
+
+```{r, size = 'small'}
+
+# Set age-of-onset and age-at-censoring
+# Age-of-onset is set based on user input/liability
+# If choice==1, Age-at-censoring same range as age-of-onset
+# If choice==2, Age-at-censoring based on user input
+# Returns: age-of-onset or age-at-censoring for each person
+
+## Variables:
+## Y: case-control status
+## liability: continuous liability
+## choice: choose between two parameters (1==unobs, 2==min/maxCen)
+## K: population proportion of cases
+## P: sample proportion of cases (1== P=K, 2== P=50%)
+## minOnset: min age-of-onset
+## maxOnset: max age-of-onset
+## minCen: min age-at-censoring (not used with unobs)
+## maxCen: max age-at-censoring (not used with unobs)
+## info: liability informs age-of-onset (1==no, 2==yes)
+
+setage_casecontrol = function(Y, liability, choice, K, P, ageDist, minOnset, maxOnset, minCen, maxCen, info){
+  
+  # Uninformative
+  if(info==1){
+    # reset liability to be random
+    liability = rnorm(N)
+  }
+  
+  #pseudo-liability for censoring
+  cenLiab = rnorm(length(which(Y==0)))
+  
+  # logistic age-of-onset
+  if(ageDist==1){
+    # cases
+    p_liab = stats::pnorm(liability, lower.tail = F)
+    move = -1*log(K/p_liab[which(Y==1)] - 1)
+    
+    # controls
+    p_liab = stats::pnorm(cenLiab, lower.tail = F)
+    censor = -1*log(1/p_liab - 1)
+  } 
+  
+  # Gaussian age-of-onset
+  if(ageDist==2){
+    move = -1*liability
+    censor = -1*cenLiab
+  }
+  
+  
+  minMove = min(move)
+  maxMove = max(move)
+  ageOnset = minOnset + ((move - minMove)/(maxMove - minMove))*(maxOnset - minOnset)
+  
+  minC = min(censor)
+  maxC = max(censor)
+  if(choice==1){
+    cenAge = minOnset + ((censor - minC)/(maxC - minC))*(maxOnset - minOnset)
+    
+  } else{
+    cenAge = minCen + ((censor - minC)/(maxC - minC))*(maxCen - minCen)
+
+  } 
+  
+  age = rep(NA, length(Y))
+  age[which(Y==1)] = ageOnset
+  age[which(Y==0)] = cenAge
+  return(age)
+  
+}  
+```

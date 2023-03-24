@@ -1,14 +1,12 @@
 rmarkdown::render("genetic_liability.Rmd")
 rmarkdown::render("binSearch.Rmd")
-rmarkdown::render("FullyCaseControl/main_method.Rmd")
-rmarkdown::render("FullyCaseControl/set_age.Rmd")
-rmarkdown::render("LiabilityOnly/main_method.Rmd")
-rmarkdown::render("LiabilityOnly/set_age.Rmd")
-rmarkdown::render("TimeToDisease/main_method.Rmd")
-rmarkdown::render("TimeToDisease/weibull.Rmd")
-rmarkdown::render("TimeToDisease/set_age.Rmd")
-rmarkdown::render("PartialCaseControl/main_method.Rmd")
-rmarkdown::render("PartialCaseControl/set_age.Rmd")
+rmarkdown::render("caseControl/main_method.Rmd")
+rmarkdown::render("caseControl/set_age.Rmd")
+rmarkdown::render("liability/main_method.Rmd")
+rmarkdown::render("liability/set_age.Rmd")
+rmarkdown::render("ageOnset/main_method.Rmd")
+rmarkdown::render("ageOnset/weibull.Rmd")
+rmarkdown::render("ageOnset/set_age.Rmd")
 
 obs2lia <- function(h2=NULL,K=NULL, P=NULL, reciprical = F){
   
@@ -34,7 +32,6 @@ runMethods_reml = function(data, models, k, method){
   # onset split from casecontrol/liability in case no correction
   # currently everything has a correction
   
-  #coxmeg
   if(method=='ageonset'){
     
     if("1" %in% models){
@@ -82,7 +79,7 @@ runMethods_reml = function(data, models, k, method){
     
     if("1" %in% models){
       tau = coxmeg(cbind(data$age, data$Y), corr = data$GRM, spd = F, type = 'dense', solver = 'NM', verbose = F)$tau
-      tau = 2*tau/(1+tau)
+      #tau = 2*tau/(1+tau)
     }
     
     # case-control status
@@ -158,6 +155,7 @@ runMethods_reml = function(data, models, k, method){
     }
     
   } 
+  
   return(c(tau, binGRM, logGRM, boxcoxGRM, qnormGRM)) 
     
 }
@@ -292,6 +290,7 @@ runMethods_hereg = function(data, models, k, method){
       qnormGRM = summary(lm(pp[upper.tri(pp)] ~ GRM))$coef[2,1]
     }
   }
+  
   return(c(binGRM, logGRM, boxcoxGRM, qnormGRM))
 }
 
