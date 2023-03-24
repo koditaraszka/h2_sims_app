@@ -1,3 +1,4 @@
+source("packages.R") # check if packages are installed
 library(shiny)
 library(knitr)
 library(shinythemes)
@@ -7,6 +8,7 @@ library(ggpattern)
 library(patchwork)
 library(dplyr)
 library(coxmeg)
+#setwd() if not running as app the setwd to /Path/To/h2_shinyapp
 source("updated_func_reml.R")
 source("plotting.R")
 source("analyses.R")
@@ -17,14 +19,14 @@ ui = div(style =
             theme=shinytheme('flatly'),
             collapsible = TRUE,
             navbarMenu("About",
-                tabPanel("Introduction to the App",
-                    source("about/about_app.R")$value
-                ),
-                tabPanel("Introduction to the Problem",
-                    source("about/about_problem.R")$value
-                )#,
+                #tabPanel("Introduction to the App",
+                #    source("about/about_app.R")$value
+                #),
+                #tabPanel("Introduction to the Problem",
+                #    source("about/about_problem.R")$value
+                #),
                 #tabPanel("Introduction to the Authors",
-                #    source("About/about_intro.R")$value
+                #    source("about/about_intro.R")$value
                 #)
                           
             ),
