@@ -124,11 +124,11 @@ server <- function(input, output) {
         progress$set(message = "Generating Plots", value = 0)
         results = NULL
         isolate({
-            first = liability(input$liabN, input$liabM, input$liabH2, input$liabC, input$liabAgeDist, input$liabOnset[1], input$liabOnset[2], input$liabCenRate, input$liabCenDist, input$liabInfo)
+            first = liability(input$liabN, input$liabM, input$liabH2, input$liabC, input$liabAgeDist, input$liabOnset[1], input$liabOnset[2], input$liabCenRate, input$liabInfo)
             detail = overview(first, "liab")
             for(i in 1:input$liabSims){
                 progress$inc(1/input$liabSims, detail = paste("Running Simulation", i))
-                x=liability(input$liabN, input$liabM, input$liabH2, input$liabC, input$liabAgeDist, input$liabOnset[1], input$liabOnset[2], input$liabCenRate, input$liabCenDist, input$liabInfo)
+                x=liability(input$liabN, input$liabM, input$liabH2, input$liabC, input$liabAgeDist, input$liabOnset[1], input$liabOnset[2], input$liabCenRate, input$liabInfo)
                 results = rbind(results, runMethods(x, input$liabModels, (1-input$liabCenRate), "liab"))
             }
             results = data.frame(results)
@@ -183,16 +183,13 @@ server <- function(input, output) {
             }
             for(i in 1:input$ageSims){
                 progress$inc(1/input$ageSims, detail = paste("Running Simulation", i))
-                print('loop')
                 x = ageonset(input$ageN, input$ageM, input$ageH2, input$ageC, input$ageK, input$ageP, 
                              input$ageCen, input$ageOnset[1], input$ageOnset[2], input$ageWeibull, input$ageInfo)
                 results = rbind(results, runMethods(x, input$ageModels, input$ageK, "ageonset"))
             }
             results = data.frame(results)
             colnames(results) = c("Tau", "BinGRMR", "LogGRMR", "BoxCoxGRMR", "QnormGRMR", "BinGRMH", "LogGRMH", "BoxCoxGRMH", "QnormGRMH")
-            print('done')
             main_plot = plot_results(results, input$ageModels, input$ageH2, input$ageSims)
-            print('plots')
         })
         
         
