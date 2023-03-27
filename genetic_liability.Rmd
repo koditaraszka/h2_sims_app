@@ -6,6 +6,7 @@ runtime: shiny
 ```{r, size = 'tiny'}
 
 # Simulate the genetic information
+# Returns: liabiity and genetic relatedness matrix
 
 ## Variables:
 ## N: number of individuals

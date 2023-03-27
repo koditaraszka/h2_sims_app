@@ -4,12 +4,50 @@ output: html_document
 ---
 
 ```{r, size = 'small'}
-setage_survival = function(onset, minAge, maxAge){
+setage_survival = function(simN, K, onset, cen, minOnset, maxOnset, shape, info){
+
+  # Uninformative
+  if(info==1){
+    # reset liability to be random
+    liability = rnorm(simN)
+    onset = weibull(simN, shape, liability)
+    
+  }
   
-  maxTTE = max(onset)
-  minTTE = min(onset)
-  onset = minAge + (onset-minTTE)/(maxTTE-minTTE)*(maxAge - minAge)
-  onset = round(onset, 1)
+  if(cen==1){
+    # all censored individuals are set to max age
+    #using the quantile for K proportion of cases
+    censor = quantile(onset, probs = K)
+  
+    # indicator for who was censored
+    y = as.numeric(onset <= censor)
+    onset = pmin(onset, censor)
+    
+    minTTE = min(onset)
+    maxTTE = max(onset)
+    onsetAge = minOnset + (onset-minTTE)/(maxTTE-minTTE)*(maxOnset - minOnset)
+    
+  } else{
+    
+    minTTE = min(onset)
+    maxTTE = max(onset)
+    onsetAge = minOnset + (onset-minTTE)/(maxTTE-minTTE)*(maxOnset - minOnset)
+    
+    # censoring is drawn from a distribution
+    #pseudo-liability for censoring
+    cenLiab = rnorm(simN)
+    censor = weibull(simN, shape, cenLiab)
+    cenAge = minOnset + ((censor - minTTE)/(maxTTE - minTTE))*(maxOnset - minOnset)
+    
+    # helper function to choose mean shift to censor  +/- 0.01 of censoring rate = 1-K
+    cenAge = binSearch(simN, onsetAge, cenAge, 1-K)
+    
+    y = as.numeric(onsetAge <= cenAge)
+    onsetAge = pmin(onsetAge, cenAge) 
+    
+  }
+  
+  return(list('age'=onsetAge, 'y' = y))
   
 }
 ```

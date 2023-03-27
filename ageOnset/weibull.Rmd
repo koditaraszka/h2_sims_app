@@ -4,11 +4,25 @@ output: html_document
 ---
 
 ```{r, size = 'small'}
+
+# Simulate data according to weibull distribution
+# Returns: age-of-onset distribution based on liability
+
+## Variables:
+## N: number of individuals
+## shape: shape parameter of weibull (1,2,3)
+## scale: scale parameter of weibull (liability)
+
 weibull = function(N, shape, scale){
   
+  #set hazard based on liability
   base = exp(scale)
+
+  # simulate baseline hazard
   u = log(1-runif(N))
-  return((-1*u/base)^(1/shape))
+  
+  # return weibull distribution
+  return((-1*u/base)^(1/as.numeric(shape)))
   
 }
 ```

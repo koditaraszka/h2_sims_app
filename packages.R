@@ -20,25 +20,28 @@ if (!require("GENESIS", quietly = TRUE))
   BiocManager::install("GENESIS")
 
 if (!require("coxmeg", quietly = TRUE))
-install.packages("coxmeg")
+  install.packages("coxmeg")
 
 if (!require("markdown", quietly = TRUE))
-install.packages("markdown")
+  install.packages("markdown")
 
 if (!require("shiny", quietly = TRUE))
-install.packages("shiny")
+  install.packages("shiny")
 
 if (!require("shinythemes", quietly = TRUE))
-install.packages("shinythemes")
+  install.packages("shinythemes")
 
 if (!require("ggplot2", quietly = TRUE))
-install.packages("ggplot2")
+  install.packages("ggplot2")
 
 if (!require("ggpattern", quietly = TRUE))
-install.packages("ggpattern")
+  install.packages("ggpattern")
+
+if (!require("ggtext", quietly = TRUE))
+  install.packages("ggtext")
 
 if (!require("patchwork", quietly = TRUE))
-install.packages("patchwork")
+  install.packages("patchwork")
 
 if (!require("msm", quietly = TRUE))
   install.packages("msm")

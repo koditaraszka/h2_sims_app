@@ -7,8 +7,8 @@ output: html_document
 
 # Simulate under liability threshold model for case-control status
 # Age-of-onset is set based on user input/liability
-# Age-of-censoring has same variance as age-of-onset
-# Age-of-censoring is then mean shifted to return correct censoring rate
+# Age-at-censoring if unobserved samples is same as distribution as age-of-onset
+# If all cases are observed age-at-censoring is set by user
 # Returns: case-control status, age, liability, genetic liability, GRM,  genetic liability deciles
 
 ## Variables:

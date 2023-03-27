@@ -1,6 +1,6 @@
 #Variables: liabSims, liabN, liabM, liabH2, liabC, liabAgeDist, liabOnset, liabCenRate, liabCenDist, liabModels, liabInfo, liabRun
 fluidPage(
-    titlePanel("Continuous Liability"),
+    titlePanel("Simulate continuous liability"),
     fluidRow(
         column(4,
             fluidRow(style = "height: 60vh; overflow-y: auto; margin 5px 5px 5px 5px; background-color:rgba(149, 165, 166, 0.15);",

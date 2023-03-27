@@ -5,62 +5,74 @@ output: html_document
 
 ```{r, size = 'small'}
 
-ageonset = function(N, M, h2, K, P, C, minAge, maxAge, shape){
-  
+# Simulate a parametric survival model according to Weibull distribution
+# Age-of-onset is set based on user input/liability
+# Age-at-censoring either fixed at max age
+# Or age-at-censoring is simulated under independent Weibull distribution
+# Returns: case-control status, age, liability, genetic liability, GRM,  genetic liability deciles
+
+## Variables:
+## N: number of individuals
+## M: number of SNPs
+## h2: SNP heritability
+## C: proportion of causal SNPs
+## K: population proportion of cases
+## P: sample proportion of cases (1==P=K, 2==P=50%)
+## minOnset: min age-of-onset
+## maxOnset: max age-of-onset
+## cen: how to censor (1==set censoring age to max age, 2== simulate censoring age)
+## shape: shape parameter for Weibull distribution
+## info: liability informs age-of-onset (1==no, 2==yes)
+
+
+ageonset = function(N, M, h2, C, K, P, cen, minOnset, maxOnset, shape, info){
+
   MAF=0.05
+  simN = N
+  
   if(P==1){
-    frac = (K*N)/25
+    frac=(K*N)/25
     maf = 1/frac
     MAF = max(MAF, maf)
+    
+  } else{
+    frac = (0.5*N)/25
+    maf = 1/frac
+    MAF = max(MAF, maf)
+    
+    #increase sim N so you can select 50/50 case-control
+    simN = N/K # probably overkill generally but not when K is "big"
+    
+  }  
   
-    gen = gen_liab(N, M, C, h2, MAF)
-    l_g = gen$liab
-    cuts = quantile(l_g,probs = seq(0.1, 0.9, 0.1))
-  
-    l_e = sqrt(1-h2)*scale(rnorm(N, 0, 1))
-    l = l_g + l_e
-  
-    y = weibull(N, shape, l)
-    t = quantile(y, probs = K)
-  
-    death = as.numeric(y <= t)
-  
-    y <- pmin(y, t)
-    y = setage_survival(y, minAge, maxAge)
-  
-    return(list("Y"=death, "age"=y, "liab"=l, "gen"=l_g, "GRM"=gen$GRM, "cuts" = cuts))
-  }
-  
-  frac = (0.5*N)/25
-  maf = 1/frac
-  MAF = max(MAF, maf)
-  
-  gen = gen_liab(N/K, M, C, h2, MAF)
+  gen = gen_liab(simN, M, C, h2, MAF)
   l_g = gen$liab
-  cuts = quantile(l_g,probs = seq(0.1, 0.9, 0.1))
+  cuts = quantile(l_g, probs = seq(0.1, 0.9, 0.1))
   
-  l_e = sqrt(1-h2)*scale(rnorm(N/K, 0, 1))
+  l_e = sqrt(1-h2)*scale(rnorm(simN, 0, 1))
   l = l_g + l_e
   
-  y = weibull(N, shape, l)
-  t = quantile(y, probs = K)
-  
-  death = as.numeric(y <= t)
-  y <- pmin(y, t)
-  
-  keepCases = sample(which(death==1), 0.5*N, replace=F)
-  keepControls = sample(which(death==0), 0.5*N, replace=F)
-  
-  death = death[sort(c(keepCases, keepControls))]
-  gen$GRM = gen$GRM[sort(c(keepCases, keepControls)), sort(c(keepCases, keepControls))]
-  
-  l_g = l_g[sort(c(keepCases, keepControls))]
-  l = l[sort(c(keepCases, keepControls))]
-  
-  y = y[sort(c(keepCases, keepControls))]
-  y = setage_survival(y, minAge, maxAge)
 
-  return(list("Y"=death, "age"=y, "liab"=l, "gen"=l_g, "GRM"=gen$GRM, "cuts" = cuts))
+  onset = weibull(simN, shape, l)
+  values = setage_survival(simN, K, onset, cen, minOnset, maxOnset, shape, info)
+  
+  age = values$age
+  y = values$y
+  
+  if(P==2){
+    keepCases = sample(which(y==1), 0.5*N, replace=F)
+    keepControls = sample(which(y==0), 0.5*N, replace=F)
+  
+    y = y[sort(c(keepCases, keepControls))]
+    gen$GRM = gen$GRM[sort(c(keepCases, keepControls)), sort(c(keepCases, keepControls))]
+  
+    l_g = l_g[sort(c(keepCases, keepControls))]
+    l = l[sort(c(keepCases, keepControls))]
+  
+    age = age[sort(c(keepCases, keepControls))]
+  }
+
+  return(list("Y"=y, "age"=age, "liab"=l, "gen"=l_g, "GRM"=gen$GRM, "cuts" = cuts))
   
 }
 ```

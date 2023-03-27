@@ -8,6 +8,7 @@ library(ggpattern)
 library(patchwork)
 library(dplyr)
 library(coxmeg)
+library(ggtext)
 #setwd() if not running as app the setwd to /Path/To/h2_shinyapp
 source("updated_func_reml.R")
 source("plotting.R")
@@ -160,31 +161,40 @@ server <- function(input, output) {
     })
     
     # age-of-onset plot
-    output$ageonsetPlots <- renderPlot({
-        
-        if (input$ageonsetRun == 0)
+    output$agePlots <- renderPlot({
+      
+        if (input$ageRun == 0)
             return()
         
-        input$ageonsetRun
-        
+        input$ageRun
         progress <- shiny::Progress$new()
         # Make sure it closes when we exit this reactive, even if there's an error
         on.exit(progress$close())
-        
         progress$set(message = "Generating Plots", value = 0)
         results = NULL
         isolate({
-            first = ageonset(input$ageonsetN, input$ageonsetM, input$ageonsetH2, input$ageonsetK, input$ageonsetP, input$ageonsetC/100, input$ageonsetRange[1], input$ageonsetRange[2], as.numeric(input$ageonsetWeibull))
-            detail = overview(first, "ageonset")
-            for(i in 1:input$ageonsetSims){
-                progress$inc(1/input$ageonsetSims, detail = paste("Running Simulation", i))
-                x = ageonset(input$ageonsetN, input$ageonsetM, input$ageonsetH2, input$ageonsetK, input$ageonsetP, input$ageonsetC/100, input$ageonsetRange[1], input$ageonsetRange[2], as.numeric(input$ageonsetWeibull))
-                results = rbind(results, runMethods(x, input$ageonsetModels, input$ageonsetK, "ageonset"))
+            first = ageonset(input$ageN, input$ageM, input$ageH2, input$ageC, input$ageK, input$ageP, 
+                             input$ageCen, input$ageOnset[1], input$ageOnset[2], input$ageWeibull, input$ageInfo)
+            if(input$ageCen==1){
+              detail = overview(first, "ageonset")
+            } else{
+              # only "ageonset" matters
+              detail = overview(first, "okay")
+            }
+            for(i in 1:input$ageSims){
+                progress$inc(1/input$ageSims, detail = paste("Running Simulation", i))
+                print('loop')
+                x = ageonset(input$ageN, input$ageM, input$ageH2, input$ageC, input$ageK, input$ageP, 
+                             input$ageCen, input$ageOnset[1], input$ageOnset[2], input$ageWeibull, input$ageInfo)
+                results = rbind(results, runMethods(x, input$ageModels, input$ageK, "ageonset"))
             }
             results = data.frame(results)
             colnames(results) = c("Tau", "BinGRMR", "LogGRMR", "BoxCoxGRMR", "QnormGRMR", "BinGRMH", "LogGRMH", "BoxCoxGRMH", "QnormGRMH")
-            main_plot = plot_results(results, input$ageonsetModels, input$ageonsetH2, input$ageonsetSims)
+            print('done')
+            main_plot = plot_results(results, input$ageModels, input$ageH2, input$ageSims)
+            print('plots')
         })
+        
         
         topdesign="
             123

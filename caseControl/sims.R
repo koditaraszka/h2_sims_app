@@ -1,6 +1,6 @@
 #Variables: ccSims, ccN, ccH2, ccC, ccM, ccChoice, ccP, ccK, ccUnobs, ccCen, ccAgeDist, ccOnset, ccModels, ccInfo, ccRun
 fluidPage(
-    titlePanel("Continuous Liability"),
+    titlePanel("Simulate case-control status"),
     fluidRow(
         column(4,
             fluidRow(style = "height: 60vh; overflow-y: auto; margin 5px 5px 5px 5px; background-color:rgba(149, 165, 166, 0.15);",
