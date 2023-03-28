@@ -1,5 +1,30 @@
 # Helper Functions
 
+## binary search
+binSearch = function(N, ageOnset, ageCensor, cenRate){
+  # tolerance for observed censoring rate
+  tol = 0.01
+  
+  minV = 0
+  maxV = 1
+  # starting at best guess not 0.5
+  value = 1 - cenRate
+  
+  shifted = ageCensor + qnorm(value)
+  rate = length(which(ageOnset >= shifted))/N
+  while(!(cenRate - tol <= rate & cenRate + tol >= rate)){
+    if(rate < cenRate){
+      maxV = value
+    } else{
+      minV = value
+    }
+    value = (minV+maxV)/2
+    shifted = ageCensor + qnorm(value)
+    rate = length(which(ageOnset >= shifted))/N
+  }
+  return(shifted)
+}
+
 ## convers observed scale to liabilty scale
 obs2lia <- function(h2=NULL,K=NULL, P=NULL, reciprical = F){
   
@@ -289,7 +314,7 @@ runMethods_hereg = function(data, models, k, method){
   return(c(binGRM, logGRM, boxcoxGRM, qnormGRM))
 }
 
-## calls runMethods_reml and runMethods_hereg
+##xf calls runMethods_reml and runMethods_hereg
 runMethods = function(data, models, k, method){
   
   reml = runMethods_reml(data, models, k, method)
@@ -482,8 +507,6 @@ casecontrol = function(N, M, h2, C, choice, K, P, ageDist, minOnset, maxOnset, u
       # P = 50% and not all cases observed
       # want unobs*0.5+0.5 case and 1-(unobs*0.5+0.5) controls
       switch = unobs*0.5
-      print('switch P==2, choice==1')
-      print(switch)
       keepCases = sample(which(Y==1), (switch+0.5)*N, replace=F)
       keepControls = sample(which(Y==0), (1-(switch+0.5))*N, replace=F)
       
@@ -492,8 +515,6 @@ casecontrol = function(N, M, h2, C, choice, K, P, ageDist, minOnset, maxOnset, u
       # P = K and not all cases observed
       # want K+unobs*K casea and 1-(K+unobs*K) controls
       switch = unobs*K
-      print('switch P==1, choice==1')
-      print(switch)
       keepCases = sample(which(Y==1), (switch+K)*N, replace=F)
       keepControls = sample(which(Y==0), (1-(switch+K))*N, replace=F)
       
@@ -512,12 +533,9 @@ casecontrol = function(N, M, h2, C, choice, K, P, ageDist, minOnset, maxOnset, u
   # returns: age-of-onset and age-at-censoring
   age = setage_casecontrol(Y, l, choice, K, P, ageDist, minOnset, maxOnset, minCen, maxCen, info)
   
-  if(choice==1){
+  if(choice==1 & unobs>0){
     # select unobserved to switch from case to control
-    print(switch)
-    print(N)
     select = sort(sample(which(Y==1), switch*N, replace = F))
-    print('error')
     # move "true" cases to controls
     for(i in select){
       age[i] = runif(1, min=minOnset, max=age[i])

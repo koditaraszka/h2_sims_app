@@ -52,9 +52,9 @@ for(ageDist in ageDists){
 }
 
 cen=1 #For now, cen=2 too hard
-for(Weibull in c(1,2,3)){
-    x = ageonset(N, M, H2, C, K, P, cen, minOnset, maxOnset, Weibull, Info)
-    final = rbind(final, c("liability", NA, NA, runMethods(x, models, K, "ageonset")))
+for(wei in c(1,2,3)){
+    x = ageonset(N, M, H2, C, K, P, cen, minOnset, maxOnset, wei, info)
+    final = rbind(final, c(paste0("weibull",wei), NA, NA, runMethods(x, models, K, "ageonset")))
 }
 
 
