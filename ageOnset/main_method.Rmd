@@ -72,7 +72,7 @@ ageonset = function(N, M, h2, C, K, P, cen, minOnset, maxOnset, shape, info){
     age = age[sort(c(keepCases, keepControls))]
   }
 
-  return(list("Y"=y, "age"=age, "liab"=l, "gen"=l_g, "GRM"=gen$GRM, "cuts" = cuts))
+  return(list("Y"=y, "age"=round(age, 1), "liab"=l, "gen"=l_g, "GRM"=gen$GRM, "cuts" = cuts))
   
 }
 ```
