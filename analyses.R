@@ -296,6 +296,16 @@ runMethods_hereg = function(data, models, k, method){
 
 runMethods = function(data, models, k, method){
   
+  if(k==1){
+    # if there are no controls don't run case-control
+    models = models[-which(models==2)]
+  }
+  
+  if(k==0){
+    # if there are no cases don't run case-control/case only age-of-onset
+    models = models[-which(models%in%c(2,3,4,5))]
+  }
+  
   reml = runMethods_reml(data, models, k, method)
   hereg = runMethods_hereg(data, models, k, method)
   return(c(reml, hereg))

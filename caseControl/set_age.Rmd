@@ -58,7 +58,6 @@ setage_casecontrol = function(Y, liability, choice, K, P, ageDist, minOnset, max
     censor = -1*cenLiab
   }
   
-  
   minMove = min(move)
   maxMove = max(move)
   ageOnset = minOnset + ((move - minMove)/(maxMove - minMove))*(maxOnset - minOnset)

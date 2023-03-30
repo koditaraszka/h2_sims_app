@@ -1,5 +1,43 @@
 # Helper Functions
 
+## weibull
+weibull = function(N, shape, scale){
+  
+  #set hazard based on liability
+  base = exp(scale)
+  
+  # simulate baseline hazard
+  u = log(1-runif(N))
+  
+  # return weibull distribution
+  return((-1*u/base)^(1/as.numeric(shape)))
+  
+}
+
+## genetic liabiity
+gen_liab = function(N, M, C, h2, MAF){
+  
+  # set allele frequency uniformly
+  aFreq = runif(M, min=MAF, max=(1-MAF))
+  G = matrix(NA,nrow=N,ncol=M)
+  for(m in 1:M){
+    # 0, 1, 2 based on allele freq
+    G[,m] = rbinom(N, 2, prob = aFreq[m])
+  }
+  X = scale(G)
+  GRM = X %*% t(X) / M
+  
+  # non-causal SNPs beta = 0
+  beta = rep(0, M)
+  causal = sample(1:M, C*M)
+  # causal SNPs beta normally distributed
+  beta[causal] = rnorm(C*M,0,1)
+  
+  # var(xb) = h2
+  xb = sqrt(h2)*scale(X %*% beta)
+  return(list("liab"=xb, "GRM"=GRM))
+}
+
 ## binary search
 binSearch = function(N, ageOnset, ageCensor, cenRate){
   # tolerance for observed censoring rate
@@ -25,7 +63,7 @@ binSearch = function(N, ageOnset, ageCensor, cenRate){
   return(shifted)
 }
 
-## convers observed scale to liabilty scale
+## converts observed scale to liabilty scale
 obs2lia <- function(h2=NULL,K=NULL, P=NULL, reciprical = F){
   
   X <- qnorm(K,lower.tail=FALSE)
@@ -314,8 +352,18 @@ runMethods_hereg = function(data, models, k, method){
   return(c(binGRM, logGRM, boxcoxGRM, qnormGRM))
 }
 
-##xf calls runMethods_reml and runMethods_hereg
+##calls runMethods_reml and runMethods_hereg
 runMethods = function(data, models, k, method){
+  
+  if(k==1){
+    # if there are no controls don't run case-control
+    models = models[-which(models==2)]
+  }
+  
+  if(k==0){
+    # if there are no cases don't run case-control/case only age-of-onset
+    models = models[-which(models%in%c(2,3,4,5))]
+  }
   
   reml = runMethods_reml(data, models, k, method)
   hereg = runMethods_hereg(data, models, k, method)
@@ -335,8 +383,11 @@ setage_liability = function(N, liability, ageDist, minOnset, maxOnset, cenRate, 
   
   # logistic age-of-onset
   if(ageDist==1){
-    p_liab = stats::pnorm(liability, lower.tail = F)
-    move = -1*log(1/p_liab - 1)
+    # lower probability == lower liability
+    p_liab = stats::pnorm(liability)
+    
+    # smaller number in denominator == bigger number/older age
+    move = log(1/p_liab - 1)
   } 
   
   # Gaussian age-of-onset
@@ -356,8 +407,11 @@ setage_liability = function(N, liability, ageDist, minOnset, maxOnset, cenRate, 
     
     # logistic age-of-censoring
     if(ageDist==1){
-      p_liab = stats::pnorm(cenLiab, lower.tail = F)
-      censor = -1*log(1/p_liab - 1)
+      # lower probability == lower liability
+      p_liab = stats::pnorm(cenLiab)
+      
+      # smaller number in denominator == bigger number/older age
+      censor = log(1/p_liab - 1)
     } 
     
     # Gaussian age-of-onset
@@ -384,7 +438,7 @@ liability = function(N, M, h2, C, ageDist, minOnset, maxOnset, cenRate, info){
   gen = gen_liab(N, M, C, h2, MAF)
   
   l_g = gen$liab
-  cuts = quantile(l_g,probs = seq(0.1, 0.9, 0.1))
+  cuts = quantile(l_g, probs = seq(0.1, 0.9, 0.1))
   
   l_e = sqrt(1-h2)*scale(rnorm(N, 0, 1))
   l = l_g + l_e
@@ -401,7 +455,6 @@ liability = function(N, M, h2, C, ageDist, minOnset, maxOnset, cenRate, info){
   
 }
 
-
 # Case-Control Model
 ## set age
 setage_casecontrol = function(Y, liability, choice, K, P, ageDist, minOnset, maxOnset, minCen, maxCen, info){
@@ -412,18 +465,25 @@ setage_casecontrol = function(Y, liability, choice, K, P, ageDist, minOnset, max
     liability = rnorm(N)
   }
   
+  liability = liability[which(Y==1)]
   #pseudo-liability for censoring
   cenLiab = rnorm(length(which(Y==0)))
   
   # logistic age-of-onset
   if(ageDist==1){
     # cases
-    p_liab = stats::pnorm(liability, lower.tail = F)
-    move = -1*log(K/p_liab[which(Y==1)] - 1)
+    # lower probability == lower liability
+    p_liab = stats::pnorm(liability)
+    
+    # smaller number in denominator == bigger number/older age
+    move = log(1/p_liab - 1)
     
     # controls
-    p_liab = stats::pnorm(cenLiab, lower.tail = F)
-    censor = -1*log(1/p_liab - 1)
+    # lower probability == lower liability
+    p_liab = stats::pnorm(cenLiab)
+    
+    # smaller number in denominator == bigger number/older age
+    censor = log(1/p_liab - 1)
   } 
   
   # Gaussian age-of-onset
@@ -431,7 +491,6 @@ setage_casecontrol = function(Y, liability, choice, K, P, ageDist, minOnset, max
     move = -1*liability
     censor = -1*cenLiab
   }
-  
   
   minMove = min(move)
   maxMove = max(move)
@@ -466,8 +525,8 @@ casecontrol = function(N, M, h2, C, choice, K, P, ageDist, minOnset, maxOnset, u
     MAF = max(MAF, maf)
     
     # going to down sample so only observe K cases
-    if(choice==1){
-      simN = N/K
+    if(choice==1 & unobs > 0){
+      simN = N/unobs
     }
     
   } else{
@@ -485,7 +544,7 @@ casecontrol = function(N, M, h2, C, choice, K, P, ageDist, minOnset, maxOnset, u
   gen = gen_liab(simN, M, C, h2, MAF)
   
   l_g = gen$liab
-  cuts = quantile(l_g,probs=seq(0.1, 0.9, 0.1))
+  cuts = quantile(l_g, probs = seq(0.1, 0.9, 0.1))
   
   l_e = sqrt(1-h2)*scale(rnorm(simN, 0, 1))
   l = l_g + l_e
@@ -503,6 +562,13 @@ casecontrol = function(N, M, h2, C, choice, K, P, ageDist, minOnset, maxOnset, u
       keepCases = sample(which(Y==1), 0.5*N, replace=F)
       keepControls = sample(which(Y==0), 0.5*N, replace=F)
       
+      #subset the data based on the retained case/controls
+      Y = Y[sort(c(keepCases, keepControls))]
+      gen$GRM = gen$GRM[sort(c(keepCases, keepControls)), sort(c(keepCases, keepControls))]
+      
+      l_g = l_g[sort(c(keepCases, keepControls))]
+      l = l[sort(c(keepCases, keepControls))]
+      
     } else if(P==2 & choice==1){
       # P = 50% and not all cases observed
       # want unobs*0.5+0.5 case and 1-(unobs*0.5+0.5) controls
@@ -510,7 +576,14 @@ casecontrol = function(N, M, h2, C, choice, K, P, ageDist, minOnset, maxOnset, u
       keepCases = sample(which(Y==1), (switch+0.5)*N, replace=F)
       keepControls = sample(which(Y==0), (1-(switch+0.5))*N, replace=F)
       
-    } else{
+      #subset the data based on the retained case/controls
+      Y = Y[sort(c(keepCases, keepControls))]
+      gen$GRM = gen$GRM[sort(c(keepCases, keepControls)), sort(c(keepCases, keepControls))]
+      
+      l_g = l_g[sort(c(keepCases, keepControls))]
+      l = l[sort(c(keepCases, keepControls))]
+      
+    } else if(unobs > 0){
       # P == 1 & choice == 1
       # P = K and not all cases observed
       # want K+unobs*K casea and 1-(K+unobs*K) controls
@@ -518,14 +591,14 @@ casecontrol = function(N, M, h2, C, choice, K, P, ageDist, minOnset, maxOnset, u
       keepCases = sample(which(Y==1), (switch+K)*N, replace=F)
       keepControls = sample(which(Y==0), (1-(switch+K))*N, replace=F)
       
+      #subset the data based on the retained case/controls
+      Y = Y[sort(c(keepCases, keepControls))]
+      gen$GRM = gen$GRM[sort(c(keepCases, keepControls)), sort(c(keepCases, keepControls))]
+      
+      l_g = l_g[sort(c(keepCases, keepControls))]
+      l = l[sort(c(keepCases, keepControls))]
+      
     }
-    
-    #subset the data based on the retained case/controls
-    Y = Y[sort(c(keepCases, keepControls))]
-    gen$GRM = gen$GRM[sort(c(keepCases, keepControls)), sort(c(keepCases, keepControls))]
-    
-    l_g = l_g[sort(c(keepCases, keepControls))]
-    l = l[sort(c(keepCases, keepControls))]
     
   }
   
@@ -546,22 +619,7 @@ casecontrol = function(N, M, h2, C, choice, K, P, ageDist, minOnset, maxOnset, u
   
 }
 
-
 # Age-of-onset
-## Weibull
-weibull = function(N, shape, scale){
-  
-  #set hazard based on liability
-  base = exp(scale)
-  
-  # simulate baseline hazard
-  u = log(1-runif(N))
-  
-  # return weibull distribution
-  return((-1*u/base)^(1/as.numeric(shape)))
-  
-}
-
 ## set age
 setage_survival = function(simN, K, onset, cen, minOnset, maxOnset, shape, info){
   
@@ -661,4 +719,3 @@ ageonset = function(N, M, h2, C, K, P, cen, minOnset, maxOnset, shape, info){
   return(list("Y"=y, "age"=round(age, 1), "liab"=l, "gen"=l_g, "GRM"=gen$GRM, "cuts" = cuts))
   
 }
-

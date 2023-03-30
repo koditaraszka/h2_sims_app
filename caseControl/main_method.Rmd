@@ -38,8 +38,8 @@ casecontrol = function(N, M, h2, C, choice, K, P, ageDist, minOnset, maxOnset, u
     MAF = max(MAF, maf)
     
     # going to down sample so only observe K cases
-    if(choice==1){
-      simN = N/K
+    if(choice==1 & unobs > 0){
+      simN = N/unobs
     }
     
   } else{
@@ -57,7 +57,7 @@ casecontrol = function(N, M, h2, C, choice, K, P, ageDist, minOnset, maxOnset, u
   gen = gen_liab(simN, M, C, h2, MAF)
   
   l_g = gen$liab
-  cuts = quantile(l_g,probs=seq(0.1, 0.9, 0.1))
+  cuts = quantile(l_g, probs = seq(0.1, 0.9, 0.1))
   
   l_e = sqrt(1-h2)*scale(rnorm(simN, 0, 1))
   l = l_g + l_e
@@ -75,6 +75,13 @@ casecontrol = function(N, M, h2, C, choice, K, P, ageDist, minOnset, maxOnset, u
       keepCases = sample(which(Y==1), 0.5*N, replace=F)
       keepControls = sample(which(Y==0), 0.5*N, replace=F)
 
+      #subset the data based on the retained case/controls
+      Y = Y[sort(c(keepCases, keepControls))]
+      gen$GRM = gen$GRM[sort(c(keepCases, keepControls)), sort(c(keepCases, keepControls))]
+  
+      l_g = l_g[sort(c(keepCases, keepControls))]
+      l = l[sort(c(keepCases, keepControls))]
+      
     } else if(P==2 & choice==1){
       # P = 50% and not all cases observed
       # want unobs*0.5+0.5 case and 1-(unobs*0.5+0.5) controls
@@ -82,7 +89,14 @@ casecontrol = function(N, M, h2, C, choice, K, P, ageDist, minOnset, maxOnset, u
       keepCases = sample(which(Y==1), (switch+0.5)*N, replace=F)
       keepControls = sample(which(Y==0), (1-(switch+0.5))*N, replace=F)
   
-    } else{
+      #subset the data based on the retained case/controls
+      Y = Y[sort(c(keepCases, keepControls))]
+      gen$GRM = gen$GRM[sort(c(keepCases, keepControls)), sort(c(keepCases, keepControls))]
+  
+      l_g = l_g[sort(c(keepCases, keepControls))]
+      l = l[sort(c(keepCases, keepControls))]
+      
+    } else if(unobs > 0){
       # P == 1 & choice == 1
       # P = K and not all cases observed
       # want K+unobs*K casea and 1-(K+unobs*K) controls
@@ -90,14 +104,14 @@ casecontrol = function(N, M, h2, C, choice, K, P, ageDist, minOnset, maxOnset, u
       keepCases = sample(which(Y==1), (switch+K)*N, replace=F)
       keepControls = sample(which(Y==0), (1-(switch+K))*N, replace=F)
       
-    }
-
-    #subset the data based on the retained case/controls
-    Y = Y[sort(c(keepCases, keepControls))]
-    gen$GRM = gen$GRM[sort(c(keepCases, keepControls)), sort(c(keepCases, keepControls))]
+      #subset the data based on the retained case/controls
+      Y = Y[sort(c(keepCases, keepControls))]
+      gen$GRM = gen$GRM[sort(c(keepCases, keepControls)), sort(c(keepCases, keepControls))]
   
-    l_g = l_g[sort(c(keepCases, keepControls))]
-    l = l[sort(c(keepCases, keepControls))]
+      l_g = l_g[sort(c(keepCases, keepControls))]
+      l = l[sort(c(keepCases, keepControls))]
+      
+    }
     
   }
   
