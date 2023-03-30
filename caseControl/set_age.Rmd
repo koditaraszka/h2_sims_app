@@ -31,18 +31,25 @@ setage_casecontrol = function(Y, liability, choice, K, P, ageDist, minOnset, max
     liability = rnorm(N)
   }
   
+  liability = liability[which(Y==1)]
   #pseudo-liability for censoring
   cenLiab = rnorm(length(which(Y==0)))
   
   # logistic age-of-onset
   if(ageDist==1){
     # cases
-    p_liab = stats::pnorm(liability, lower.tail = F)
-    move = -1*log(K/p_liab[which(Y==1)] - 1)
+    # lower probability == lower liability
+    p_liab = stats::pnorm(liability)
+  
+    # smaller number in denominator == bigger number/older age
+    move = log(1/p_liab - 1)
     
     # controls
-    p_liab = stats::pnorm(cenLiab, lower.tail = F)
-    censor = -1*log(1/p_liab - 1)
+    # lower probability == lower liability
+    p_liab = stats::pnorm(cenLiab)
+  
+    # smaller number in denominator == bigger number/older age
+    censor = log(1/p_liab - 1)
   } 
   
   # Gaussian age-of-onset

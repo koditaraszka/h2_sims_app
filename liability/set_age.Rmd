@@ -31,8 +31,11 @@ setage_liability = function(N, liability, ageDist, minOnset, maxOnset, cenRate, 
 
   # logistic age-of-onset
   if(ageDist==1){
-    p_liab = stats::pnorm(liability, lower.tail = F)
-    move = -1*log(1/p_liab - 1)
+    # lower probability == lower liability
+    p_liab = stats::pnorm(liability)
+  
+    # smaller number in denominator == bigger number/older age
+    move = log(1/p_liab - 1)
   } 
   
   # Gaussian age-of-onset
@@ -52,8 +55,11 @@ setage_liability = function(N, liability, ageDist, minOnset, maxOnset, cenRate, 
     
     # logistic age-of-censoring
     if(ageDist==1){
-      p_liab = stats::pnorm(cenLiab, lower.tail = F)
-      censor = -1*log(1/p_liab - 1)
+      # lower probability == lower liability
+      p_liab = stats::pnorm(cenLiab)
+  
+      # smaller number in denominator == bigger number/older age
+      censor = log(1/p_liab - 1)
     } 
 
     # Gaussian age-of-onset
