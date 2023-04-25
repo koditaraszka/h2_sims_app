@@ -35,7 +35,7 @@ runMethods_reml = function(data, models, k, method){
   if(method=='ageonset'){
     
     if("1" %in% models){
-      tau = coxmeg(cbind(data$age, data$Y), corr = data$GRM, spd = F, type = 'dense', solver = 'NM', verbose = F)$tau
+      tau = coxmeg(cbind(data$age, data$Y), corr = data$GRM, spd = F, type = 'dense', detap='exact', solver=1, opt='bobyqa', verbose = F)$tau
       tau = 2*tau/(1+tau)
     }
     
